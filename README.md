@@ -15,7 +15,7 @@ A Codex skill that generates high-converting App Store screenshots for your iOS 
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone https://github.com/ekurutepe/claude-skill-aso-appstore-screenshots \
+git clone https://github.com/ekurutepe/codex-skill-aso-appstore-screenshots \
   "${CODEX_HOME:-$HOME/.codex}/skills/aso-appstore-screenshots"
 ```
 
