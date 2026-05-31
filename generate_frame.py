@@ -8,7 +8,7 @@ compose.py positions this dynamically based on text height.
 from PIL import Image, ImageDraw, ImageChops
 
 # ── Device dimensions ───────────────────────────────────────────────
-# Width is ~80% of 1290 canvas, matching reference screenshots
+# Width is ~80% of the 1284px default canvas, matching reference screenshots
 DEVICE_W = 1030
 DEVICE_H = 2800           # tall enough to bleed off any canvas
 DEVICE_CORNER_R = 77

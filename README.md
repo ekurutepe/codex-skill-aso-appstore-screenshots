@@ -1,29 +1,35 @@
 # ASO App Store Screenshots
 
-A Claude Code skill that generates high-converting App Store screenshots for your iOS app. It analyzes your codebase, identifies core benefits, and creates professional screenshot images using AI.
+A Codex skill that generates high-converting App Store screenshots for your iOS app. It analyzes your codebase, identifies core benefits, and creates professional screenshot images with Codex's built-in `imagegen` workflow.
 
 ## What It Does
 
 1. **Benefit Discovery** — Analyzes your app's codebase to identify the 3-5 core benefits that drive downloads
 2. **Screenshot Pairing** — Reviews your simulator screenshots, rates them, and pairs each with the best benefit
-3. **Generation** — Creates polished App Store screenshots using a two-stage process: deterministic scaffolding (compose.py) + AI enhancement (Nano Banana Pro via Gemini MCP)
+3. **Generation** — Creates polished App Store screenshots using a two-stage process: deterministic scaffolding (`compose.py`) + AI enhancement with the built-in `imagegen` skill
 4. **Showcase** — Generates a preview image with all screenshots side-by-side
 
 ## Installation
 
-### 1. Add the skill to Claude Code
+### 1. Add the skill to Codex
 
 ```bash
-claude install-skill github.com/adamlyttleapps/claude-skill-aso-appstore-screenshots
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+git clone https://github.com/ekurutepe/claude-skill-aso-appstore-screenshots \
+  "${CODEX_HOME:-$HOME/.codex}/skills/aso-appstore-screenshots"
 ```
 
-### 2. Install Python dependencies
+Restart Codex after installing the skill so it is loaded.
+
+Alternatively, ask Codex to install the skill from GitHub with `$skill-installer`.
+
+### 2. Install Python Dependencies
 
 ```bash
 pip install Pillow
 ```
 
-### 3. Font requirement
+### 3. Font Requirement
 
 The skill uses **SF Pro Display Black** for headline text. On macOS, install it from [Apple's developer fonts](https://developer.apple.com/fonts/). The expected path is:
 
@@ -31,15 +37,9 @@ The skill uses **SF Pro Display Black** for headline text. On macOS, install it 
 /Library/Fonts/SF-Pro-Display-Black.otf
 ```
 
-### 4. Set up Gemini MCP (for AI enhancement)
+### 4. Image Generation
 
-The generation phase requires [@houtini/gemini-mcp](https://www.npmjs.com/package/@houtini/gemini-mcp) to be configured as an MCP server in Claude Code:
-
-```bash
-npm install -g @houtini/gemini-mcp
-```
-
-Then add it to your Claude Code MCP config (`~/.claude/settings.json` or project `.mcp.json`).
+The generation phase uses Codex's built-in `imagegen` skill and `image_gen` tool. No external image-generation MCP server is required.
 
 ## Usage
 
@@ -49,7 +49,7 @@ From within your app's project directory, run:
 /aso-appstore-screenshots
 ```
 
-The skill will guide you through each phase interactively. Progress is saved to Claude Code's memory system, so you can resume across conversations.
+The skill will guide you through each phase interactively. Progress is saved to Codex memory, so you can resume across conversations.
 
 ## How It Works
 
@@ -58,7 +58,7 @@ The skill will guide you through each phase interactively. Progress is saved to 
 Rather than generating screenshots from scratch (which produces inconsistent results), the skill uses a two-stage approach:
 
 1. **compose.py** creates a deterministic scaffold with exact text positioning, device frame, and your simulator screenshot composited inside
-2. **Nano Banana Pro** (via Gemini MCP) enhances the scaffold — adding a photorealistic device frame, breakout elements, and visual polish
+2. Codex's built-in **imagegen** workflow enhances the scaffold — adding a polished device frame, breakout elements, and visual polish
 
 This ensures consistent layout across all screenshots while letting AI handle the creative enhancement.
 
@@ -78,7 +78,7 @@ screenshots/
   showcase.png              ← preview image with all screenshots
 ```
 
-The `final/` folder contains App Store-ready screenshots at exact Apple dimensions (default: 1290×2796px for iPhone 6.7").
+The `final/` folder contains App Store-ready screenshots at exact Apple dimensions (default: 1284×2778px for iPhone 6.7").
 
 ## Files
 

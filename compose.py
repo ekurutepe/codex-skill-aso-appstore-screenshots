@@ -2,7 +2,7 @@
 """
 App Store Screenshot Composer
 Composites headline text, device frame template, and app screenshot
-into a pixel-perfect 1290×2796 App Store Connect image.
+into a pixel-perfect 1284×2778 App Store Connect image.
 
 The device frame is positioned dynamically based on text height,
 matching the proportions seen in professional App Store screenshots.
@@ -13,8 +13,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 
 # ── Canvas ──────────────────────────────────────────────────────────
-CANVAS_W = 1290
-CANVAS_H = 2796
+CANVAS_W = 1284
+CANVAS_H = 2778
 
 # ── Device template constants (must match generate_frame.py) ───────
 DEVICE_W = 1030
