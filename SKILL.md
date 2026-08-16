@@ -1,7 +1,6 @@
 ---
 name: aso-appstore-screenshots
-description: Generate high-converting App Store screenshots by analyzing your app's codebase, discovering core benefits, and creating ASO-optimized screenshot images using the built-in imagegen skill.
-user-invocable: true
+description: Plan and generate high-converting App Store screenshots with explicit reusable layouts, verified social-proof laurels, deterministic scaffolds, and per-screenshot render manifests. Use for ASO screenshot analysis, messaging, layout selection, generation, localization, experiments, or iteration.
 ---
 
 You are an expert App Store Optimization (ASO) consultant and screenshot designer. Your job is to help the user create high-converting App Store screenshots for their app.
@@ -19,8 +18,10 @@ Before doing ANY codebase analysis, check the Codex memory system for all previo
 1. **Benefits** — confirmed benefit headlines + target audience + app context
 2. **Screenshot analysis** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, and any assessment notes
 3. **Pairings** — which simulator screenshot is paired with which benefit
-4. **Brand colour** — the confirmed background colour (name + hex)
-5. **Generated screenshots** — file paths to generated and resized screenshots, which benefits they correspond to
+4. **Background** — exact saved background specification (solid, gradient, or image)
+5. **Layout** — named layout and per-screenshot `.aso.json` manifests
+6. **Social proof** — verified claims, approved wording, evidence, localization, and the user's include/omit decision
+7. **Generated screenshots** — file paths to generated and resized screenshots, which benefits they correspond to
 
 **Present a status summary to the user** showing what's saved and what phase they're at. For example:
 
@@ -31,6 +32,7 @@ Here's where we left off:
 ✅ Screenshots analysed (5 provided, 4 rated Great/Usable)
 ✅ Pairings confirmed
 ✅ Brand colour: Electric Blue (#2563EB)
+✅ Layout: regular (saved parameters)
 ⏳ Generation: 2 of 3 screenshots generated
 
 Ready to continue generating screenshot 3, or would you like to change anything?
@@ -118,6 +120,7 @@ Once the user confirms the final benefits, save them to the Codex memory system.
 - The target audience
 - Key app context (what the app does, niche, competitors mentioned)
 - Any reasoning or user preferences noted during refinement (e.g., "user prefers 'TRACK' over 'MONITOR'")
+- Any verified social-proof claims, their approved wording, and the evidence or experiment that supports using them
 
 This means the user won't need to redo benefit discovery in future conversations. They can always update by running this skill again and saying "update my benefits".
 
@@ -212,6 +215,8 @@ This is critical for resumability. If the user comes back in a new conversation,
 
 Once benefits and screenshot pairings are confirmed, generate the final App Store screenshots using the built-in `imagegen` skill.
 
+Before selecting a layout, rendering, or resuming an existing screenshot, read [`references/layouts-and-state.md`](references/layouts-and-state.md) completely. It defines the supported layouts, parameters, social-proof decision flow, backgrounds, and required per-screenshot manifest.
+
 ### Prerequisites Check
 
 Before generating, load the installed system `imagegen` skill (`$CODEX_HOME/skills/.system/imagegen/SKILL.md`, defaulting to `~/.codex/skills/.system/imagegen/SKILL.md`) and follow its default built-in tool workflow. Use the built-in `image_gen` tool for normal image generation and editing. Do not require an external image-generation MCP server.
@@ -235,6 +240,30 @@ Default to **1284 x 2778px** (iPhone 6.7") unless the user specifies otherwise. 
 
 Each screenshot follows this exact high-converting ASO format. **Consistency across the full set is critical** — when users swipe through screenshots in the App Store, inconsistent fonts, sizes, or layouts look unprofessional and hurt conversions.
 
+**Experiment evidence outranks the default template.** Before replacing a live screenshot style, inspect recent Product Page Optimization results and preserve conversion-positive elements in the next test. A winning mixed treatment does not prove which individual element caused the lift, so carry likely winners forward as testable components rather than redesigning the whole set at once.
+
+**Social proof (use when verified):**
+- Treat download milestones, editorial recognition, ratings, awards, or press mentions as conversion elements, not decoration.
+- Confirm that every claim is current and supportable before generation. Never round up beyond the verified milestone or imply an endorsement that did not occur.
+- Put the strongest proof in the first three screenshots. Prefer no more than two proof treatments in the set so product benefits remain primary.
+- Social-proof frames are exempt from the action-verb headline rule. A dedicated proof frame may use a large claim such as `700K+` with `DOWNLOADS`, or `FEATURED` with `BY APPLE`.
+- Recreate the proven legacy treatment when available: a symmetrical pair of simple laurel branches framing the claim, high contrast, generous clear space, and no competing decorative elements.
+- A proof badge may instead sit in unused space on a benefit screenshot, but it must remain readable at thumbnail size and must not cover the app UI or headline.
+- Localize the descriptor naturally for each storefront while keeping numerals and the Apple name accurate. Re-check line breaks in every rendered locale.
+- Save the exact approved claim, source, locale wording, screenshot position, and last verification date to memory.
+- Save the user's explicit include/omit decision. If evidence or preference is insufficient to decide, ask one concise question covering whether to use laurels and the exact verified claims. Remember the answer and do not ask again unless the evidence, wording, locale, or preference changes.
+
+**SolarWatch precedent:** The current Product Page Optimization experiment `bffc8aab-372d-49cd-a188-c8c05b156791` is performing well with legacy English screenshots mixed with new localized screenshots, while the preceding all-new localized treatment was flat. Preserve and test the legacy trust motifs in the evergreen set: `700K+ DOWNLOADS` and `FEATURED BY APPLE`, each framed by laurel leaves. Keep these as controlled variables; do not infer that localization or the new product-benefit frames are ineffective from this comparison alone.
+
+### Explicit layout choice
+
+Choose and name one layout before rendering:
+
+- `regular`: title → subtitle → device screenshot.
+- `social-proof-vstack`: title → subtitle → one or two supporting laurel wreaths → lowered device screenshot.
+
+Use `regular` by default. Use `social-proof-vstack` only when the social-proof decision is `include`. Preserve the main title and benefit subtitle as the dominant message. Load exact defaults and override rules from `references/layouts-and-state.md`.
+
 **Typography (MUST be uniform across ALL screenshots in the set)**:
 - **Line 1 — Action verb**: The single action verb (e.g., "TRACK", "SEARCH", "BOOST"). This is the BIGGEST, boldest text on the screenshot. White, uppercase, center-aligned. Same font, same size, same weight on every screenshot.
 - **Line 2 — Benefit descriptor**: The rest of the headline (e.g., "TRADING CARD PRICES", "ANY VERSE IN SECONDS"). Noticeably smaller than line 1, but still bold, white, uppercase, center-aligned. Same font, same size, same weight on every screenshot.
@@ -244,6 +273,7 @@ Each screenshot follows this exact high-converting ASO format. **Consistency acr
 
 **Device frame**:
 - A modern iPhone device mockup (black frame, dynamic island)
+- Render the Dynamic Island as opaque solid-black physical device hardware, centered in the same size and position across the set. It must not inherit the app screenshot, display app branding/content, or be styled as an app UI capsule.
 - The device displays the paired simulator screenshot
 - The device is **positioned high on the canvas** — it overlaps or sits just below the headline text area, NOT pushed down to the bottom
 - The bottom of the device **bleeds off the bottom edge** of the canvas — the phone is intentionally cropped, not fully visible. This creates a dynamic, modern feel.
@@ -258,8 +288,8 @@ Breakout elements can give screenshots personality and make them feel dynamic. B
 **What to avoid**: Don't add decorative elements just because you can. No random icons, no excessive particles/sparkles, no elements unrelated to the benefit. The screenshot should feel polished and intentional, not busy.
 
 **Background (MUST be consistent across ALL screenshots in the set)**:
-- Solid bold brand colour fills the entire canvas — same colour on every screenshot
-- The background must be a clean, solid brand colour. Do NOT add glows, gradients, radial patterns, or light effects.
+- Reuse the exact saved background specification on every screenshot: solid colour, explicit vertical gradient, or approved background image.
+- Do not approximate an approved background by eye or introduce unrecorded glows, gradients, radial patterns, or light effects.
 - If accent shapes are used, use the same style of accent on every screenshot so the set looks like a cohesive series when viewed side-by-side
 
 ### Generation Process — Two-Stage: Scaffold then Imagegen Enhance
@@ -272,9 +302,9 @@ Generation uses a two-stage approach for consistency:
 
 For each benefit + screenshot pair, generate **3 enhanced versions** so the user can pick the best one. In built-in `image_gen` mode, issue one tool call per version. Do not use CLI batch mode unless the user explicitly chooses the imagegen CLI fallback.
 
-**Step 0: Save brand colour to memory**
+**Step 0: Save reusable style state**
 
-Before generating any scaffolds, save the confirmed brand colour to the Codex memory system. Create or update the benefits memory file (e.g., `aso_benefits.md`) to include the brand colour name and hex code. This ensures the colour persists across conversations and is available immediately if the user resumes later.
+Before generating any scaffolds, save the exact background specification, selected layout, any parameter overrides, and the social-proof evidence plus include/omit decision. Reuse an existing screenshot manifest when iterating instead of estimating values again.
 
 **Step 1: Create the scaffold with compose.py**
 
@@ -288,14 +318,17 @@ Before running the command, resolve `SKILL_DIR` to the absolute path of the inst
 SKILL_DIR="[absolute path to this skill directory]" && \
 mkdir -p screenshots/01-[benefit-slug] screenshots/02-[benefit-slug] screenshots/03-[benefit-slug] && \
 python3 "$SKILL_DIR/compose.py" \
+  --layout regular \
   --bg "[HEX CODE]" --verb "[VERB 1]" --desc "[DESC 1]" \
   --screenshot [path/to/screenshot-1.png] \
   --output screenshots/01-[benefit-slug]/scaffold.png && \
 python3 "$SKILL_DIR/compose.py" \
+  --layout regular \
   --bg "[HEX CODE]" --verb "[VERB 2]" --desc "[DESC 2]" \
   --screenshot [path/to/screenshot-2.png] \
   --output screenshots/02-[benefit-slug]/scaffold.png && \
 python3 "$SKILL_DIR/compose.py" \
+  --layout regular \
   --bg "[HEX CODE]" --verb "[VERB 3]" --desc "[DESC 3]" \
   --screenshot [path/to/screenshot-3.png] \
   --output screenshots/03-[benefit-slug]/scaffold.png
@@ -306,6 +339,9 @@ This outputs pixel-perfect 1284×2778 PNGs with:
 - iPhone device frame (from pre-rendered template)
 - Simulator screenshot composited inside the frame
 - Solid background colour
+- A sibling `.aso.json` manifest containing the named layout, all resolved parameters, exact background, source paths, typography, device placement, and social-proof configuration
+
+For a verified proof frame, use `--layout social-proof-vstack`, repeat `--proof` once or twice, and pass any approved parameter overrides. See `references/layouts-and-state.md` for the exact command and claim schema.
 
 The scaffolds are internal intermediates — do NOT show them to the user or ask for confirmation. Proceed immediately to Step 2 (imagegen enhancement).
 
@@ -321,6 +357,7 @@ Use the built-in `image_gen` tool from the `imagegen` skill. For each version:
   - `./screenshots/01-[benefit-slug]/v2.png`
   - `./screenshots/01-[benefit-slug]/v3.png`
 - Never leave a project-bound generated screenshot only under `$CODEX_HOME/generated_images/...`.
+- Copy the scaffold manifest beside each generated variant and add the style-template path plus variant identifier. The image and manifest always travel together.
 - If the generated output already has exact target dimensions, keep it as-is. Otherwise crop/resize it in Step 3 before review.
 
 #### First screenshot (no approved template yet)
@@ -341,6 +378,9 @@ KEEP EXACTLY AS-IS:
 - The app screenshot shown on the phone screen
 - The background colour
 - The portrait composition and approximate layout
+- Any approved social-proof copy and laurel treatment described below
+
+[SOCIAL PROOF — exact verified claim, localized wording, and laurel placement, or "None"]
 
 ENHANCE AND POLISH:
 - Refine the device frame into a sleek modern iPhone mockup with accurate proportions, reflections, and subtle shadows. Keep the same position and size as the scaffold.
@@ -349,11 +389,11 @@ ENHANCE AND POLISH:
 [PRIMARY BREAKOUT — if a relevant panel is obvious, describe the specific UI panel visible on screen and instruct it to extend beyond both edges of the device frame with a drop shadow, e.g., "The [panel name] card/row extends beyond both left and right edges of the device frame, overlapping the phone bezel on both sides, expanding to nearly the full screenshot width. It floats in front of the device with a soft drop shadow beneath it." If no panel clearly relates to the headline, write "No breakout — the app screen speaks for itself."]
 - Optionally add 1-2 secondary elements that reinforce the benefit and message of the screenshot — the kind of enhancements a professional graphic designer would add for impact. These are NOT from the app UI; they are creative additions that help clearly communicate what the screenshot is trying to portray to the user browsing the App Store. They should carry the message and support ASO conversion, but never at the cost of the overall design aesthetic. They must not compete with the primary breakout for attention.
 [SECONDARY ELEMENTS (optional) — describe 0-2 small supporting elements that tell the story, or "None needed"]
-- The background should be a clean, solid brand colour. Do NOT add glows, gradients, radial patterns, or light effects to the background. Keep it flat and bold.
+- Preserve the exact background specification recorded in the scaffold manifest. Do not add unrecorded glows, gradients, radial patterns, or light effects.
 - Ensure the text is crisp, bold, and highly readable
-- Avoid watermarks, extra text, invented UI content, App Store UI chrome, or changing the app screenshot content.
+- Avoid watermarks, unapproved extra text, invented UI content, App Store UI chrome, or changing the app screenshot content. Preserve any approved, verified social-proof claim and laurel treatment specified in the scaffold or prompt.
 
-The final result should look like it was designed by a professional App Store screenshot agency — polished, high-converting, and visually striking. No watermarks, no extra text, no app store UI chrome.
+The final result should look like it was designed by a professional App Store screenshot agency — polished, high-converting, and visually striking. No watermarks, no unapproved extra text, no app store UI chrome. Approved social-proof copy and laurels are intentional exceptions.
 ```
 
 #### Subsequent screenshots (after first is approved)
@@ -379,21 +419,25 @@ TWO REFERENCE IMAGES:
 REQUIREMENTS:
 - CRITICAL: The device frame MUST match the style template EXACTLY — same photorealistic iPhone rendering, same size, same position, same shadows, same reflections, same edge treatment. Do NOT reinvent or reimagine the device frame. Reproduce it as closely as possible from the style template, only changing the screen contents.
 - Match the style template's text rendering style (same font treatment, same crispness, same visual weight)
-- Match the style template's background — clean, solid brand colour. No glows, gradients, radial patterns, or light effects.
+- Match the exact background specification in the style template manifest. Do not invent additional effects.
 - Use the scaffold's layout for positioning (text, device, screenshot placement)
+- Preserve the approved social-proof treatment from the scaffold or style template when specified.
+[SOCIAL PROOF — exact verified claim, localized wording, and laurel placement, or "None"]
 - OPTIONALLY add a PRIMARY breakout element — but ONLY if there is an obvious, visually compelling UI panel on the app screen that directly relates to the benefit headline. If nothing clearly reinforces the headline, skip the breakout entirely. When used, it MUST be an entire UI panel or grouped section (NOT individual small elements like a single button or icon). The panel must stay at the SAME vertical position and orientation as on screen — do NOT rotate or angle it. The panel must be SCALED UP significantly — rendered much larger than it appears on the phone screen — so that it extends dramatically beyond BOTH left and right edges of the device frame, clearly overlapping the phone bezel on both sides, expanding to nearly the full width of the screenshot canvas. Do NOT keep the panel at its original on-screen size. The panel itself must be enlarged. It should appear to float in front of the device at this larger scale — add a soft drop shadow beneath it to create depth. The panel MUST come from the app screenshot — same colours, same style, same content. Do NOT invent new elements.
 [PRIMARY BREAKOUT — if a relevant panel is obvious, describe the specific UI panel visible on screen to pop out with a drop shadow, extending beyond both device frame edges. Otherwise write "No breakout — the app screen speaks for itself."]
 - Optionally add 1-2 secondary elements that reinforce the benefit and message of the screenshot — the kind of enhancements a professional graphic designer would add for impact. These are NOT from the app UI; they are creative additions that help clearly communicate what the screenshot is trying to portray to the user browsing the App Store. They should carry the message and support ASO conversion, but never at the cost of the overall design aesthetic. They must not compete with the primary breakout for attention.
 [SECONDARY ELEMENTS (optional) — 0-2 small supporting elements that tell the story, or "None needed"]
 - The breakout elements should match the style and energy level of those in the style template
-- Avoid watermarks, extra text, invented UI content, App Store UI chrome, or changing the app screenshot content.
+- Avoid watermarks, unapproved extra text, invented UI content, App Store UI chrome, or changing the app screenshot content. Preserve any approved, verified social-proof claim and laurel treatment specified in the scaffold or style template.
 
 The result must look like it was designed alongside the style template as part of the same professional set. When placed side-by-side in the App Store, they should be visually cohesive — same quality, same aesthetic, same design language, just different content.
 
-No watermarks, no extra text, no app store UI chrome.
+No watermarks, no unapproved extra text, no app store UI chrome. Approved social-proof copy and laurels are intentional exceptions.
 ```
 
 **IMPORTANT — Consistency enforcement**: The scaffold guarantees consistent layout. The style template guides consistent visual treatment. If imagegen changes the text, layout, app UI content, or deviates from the style template, regenerate with a stricter prompt.
+
+Before every iteration, read that screenshot's `.aso.json` first. Preserve the named layout, background, and resolved parameters unless the user explicitly requests a change; then update only those fields in the next manifest.
 
 **Step 3: IMMEDIATELY crop and resize ALL 3 versions to App Store dimensions**
 
@@ -465,27 +509,28 @@ Once the user picks a winner, copy the resized version to `screenshots/final/`:
 ```bash
 mkdir -p screenshots/final
 cp "screenshots/01-[benefit-slug]/v2-resized.png" "screenshots/final/01-[benefit-slug].png"
+cp "screenshots/01-[benefit-slug]/v2-resized.aso.json" "screenshots/final/01-[benefit-slug].aso.json"
 ```
 
 This keeps `final/` clean — only approved, App Store-ready screenshots, one per benefit, numbered in order. Then move to the next benefit.
 
-### Determine Brand Colour (Automatic)
+### Determine Background (Automatic)
 
-Do NOT ask the user to pick a background colour. Instead, determine the best one automatically:
+Do NOT ask the user to pick a background when an approved screenshot or saved manifest already defines it. Reuse that exact specification. For a new set, determine the best background automatically:
 
 1. **Analyse the codebase** — check for accent colours, tint colours, brand colours in asset catalogs, theme files, colour constants, Info.plist
 2. **Study the simulator screenshots** — what are the dominant colours in the UI? What colour palette does the app use?
 3. **Consider the app's domain and audience** — a game can go bold and playful, a finance app needs confident and trustworthy colours
 
-**Pick a single colour that:**
-- **Complements the screenshots** — makes the app screens pop, not clash. If the app UI is mostly white/light, use a bold saturated background for contrast.
+**Pick one reproducible background specification that:**
+- **Complements the screenshots** — makes the app screens pop, not clash. Prefer a bold solid colour unless an approved set establishes a gradient or background image.
 - **Stops the scroll** — vibrant, bold, saturated. Muted or pastel colours get lost in the App Store.
 - **Suits the app's personality** — match the energy of the app
 - **Avoids pitfalls** — no white/light grey (disappears against App Store), avoid colours too close to the app UI's dominant colour
 
-Present your choice with brief reasoning (e.g., "Using **#7B2D8E** (deep purple) — it complements your app's colourful UI and stands out at thumbnail size"). The user can override if they want, but don't present it as a question.
+Present the exact specification with brief reasoning (for example a hex colour, two gradient stops, or background image path). The user can override it, but don't present it as a question.
 
-The brand colour is saved to memory in Step 0 of the generation process, before scaffolding begins.
+Save the background specification to memory and every screenshot manifest in Step 0.
 
 ### Output
 
@@ -519,6 +564,7 @@ Also tell the user exactly which App Store Connect display size slot each screen
 After each screenshot is generated (or after the full set is complete), save generation state to the Codex memory system. Create or update a memory file (e.g., `aso_generated_screenshots.md`) with:
 
 - **Brand colour**: name + hex code
+- **Background specification**: solid colour, exact gradient stops, or background image path
 - **Target display size**: e.g., iPhone 6.7" (1284x2778)
 - **For each generated screenshot**:
   - Benefit headline (ACTION VERB + DESCRIPTOR)
@@ -527,6 +573,9 @@ After each screenshot is generated (or after the full set is complete), save gen
   - Final file path (e.g., `screenshots/final/01-track-card-prices.png`)
   - Simulator screenshot used (file path)
   - Breakout elements described in the prompt
+  - Named layout and sibling `.aso.json` manifest path
+  - Resolved layout parameters and font
+  - Social-proof claims, evidence, locale wording, laurel asset/placement, and include/omit decision
   - Status: generated / approved / needs-redo
   - Any user feedback or change requests noted
 
@@ -556,6 +605,8 @@ Show the showcase image to the user using `view_image`. This is a shareable prev
 - **Action-oriented**: Every headline starts with a strong verb
 - **User-centric**: Frame everything from the downloader's perspective
 - **Conversion-focused**: Every decision should answer "will this make someone tap Download?"
+- **Evidence-led**: Preserve elements associated with a winning Product Page Optimization treatment and isolate them in the next test
+- **Proof must be true**: Verify social claims before rendering; use laurels to frame proof, never to manufacture credibility
 - The first screenshot is the most important — it must communicate the single biggest reason to download
 - Screenshots should tell a story when swiped through — each one reveals a new compelling reason
 - Always pair the most visually impactful simulator screenshot with the most important benefit
