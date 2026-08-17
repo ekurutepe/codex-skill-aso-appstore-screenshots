@@ -1,13 +1,15 @@
 # ASO App Store Screenshots
 
-A Codex skill that generates high-converting App Store screenshots for your iOS app. It analyzes your codebase, identifies core benefits, and creates professional screenshot images with Codex's built-in `imagegen` workflow.
+A reusable Codex skill for planning, localizing, rendering, and iterating App Store screenshots for any iOS app.
 
 ## What It Does
 
 1. **Benefit Discovery** — Analyzes your app's codebase to identify the 3-5 core benefits that drive downloads
 2. **Screenshot Pairing** — Reviews your simulator screenshots, rates them, and pairs each with the best benefit
-3. **Generation** — Creates polished App Store screenshots using a two-stage process: deterministic scaffolding (`compose.py`) + AI enhancement with the built-in `imagegen` skill
-4. **Showcase** — Generates a preview image with all screenshots side-by-side
+3. **Layouts** — Renders regular benefit frames or benefit-first social-proof frames with verified laurel claims
+4. **Localization QA** — Preserves alignment and spacing while checking RTL, CJK, and long translations
+5. **Generation** — Creates deterministic scaffolds (`compose.py`) with optional built-in `imagegen` enhancement
+6. **Reproducibility** — Writes a sibling `.aso.json` manifest for every scaffold
 
 ## Installation
 
@@ -29,13 +31,9 @@ Alternatively, ask Codex to install the skill from GitHub with `$skill-installer
 pip install Pillow
 ```
 
-### 3. Font Requirement
+### 3. Optional brand font
 
-The skill uses **SF Pro Display Black** for headline text. On macOS, install it from [Apple's developer fonts](https://developer.apple.com/fonts/). The expected path is:
-
-```
-/Library/Fonts/SF-Pro-Display-Black.otf
-```
+The renderer automatically chooses a common bold system font. Pass `--font /path/to/font.ttf` to use a brand font or a locale-specific fallback. Only distribute fonts whose licenses permit redistribution.
 
 ### 4. Image Generation
 
@@ -45,8 +43,8 @@ The generation phase uses Codex's built-in `imagegen` skill and `image_gen` tool
 
 From within your app's project directory, run:
 
-```
-/aso-appstore-screenshots
+```text
+Use $aso-appstore-screenshots to plan and generate screenshots for this app.
 ```
 
 The skill will guide you through each phase interactively. Progress is saved to Codex memory, so you can resume across conversations.
@@ -60,7 +58,32 @@ Rather than generating screenshots from scratch (which produces inconsistent res
 1. **compose.py** creates a deterministic scaffold with exact text positioning, device frame, and your simulator screenshot composited inside
 2. Codex's built-in **imagegen** workflow enhances the scaffold — adding a polished device frame, breakout elements, and visual polish
 
-This ensures consistent layout across all screenshots while letting AI handle the creative enhancement.
+This keeps layout deterministic while letting AI handle optional creative enhancement. The renderer can also be used without image generation.
+
+### Quick start
+
+```bash
+python3 compose.py \
+  --layout regular \
+  --bg-top "#5B21B6" --bg-bottom "#DB2777" \
+  --verb "TRACK" --desc "YOUR DAILY PROGRESS" \
+  --screenshot path/to/simulator.png \
+  --output screenshots/01-track-progress.png
+```
+
+Add verified social proof only when its source is supportable:
+
+```bash
+python3 compose.py \
+  --layout social-proof-vstack \
+  --bg "#2563EB" \
+  --verb "BUILD" --desc "BETTER HABITS" \
+  --proof '{"kind":"ratings","top":"4.8","bottom":"RATING","source":"verified store data","verified_on":"2026-01-15"}' \
+  --screenshot path/to/simulator.png \
+  --output screenshots/01-build-better-habits.png
+```
+
+The bundled renderer outputs 1284×2778 RGB PNGs, an accepted iPhone 6.5-inch size. Verify [Apple's current screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications) before producing or uploading other display classes. Do not stretch the bundled iPhone frame into an iPad shape.
 
 ### Output
 
@@ -70,15 +93,17 @@ Screenshots are saved to a `screenshots/` directory in your project:
 screenshots/
   01-benefit-slug/          ← working versions
     scaffold.png            ← deterministic compose.py output
+    scaffold.aso.json       ← reusable layout, background, typography, and proof state
     v1.png, v2.png, v3.png  ← AI-enhanced versions
     v1-resized.png, ...     ← cropped to App Store dimensions
   final/                    ← approved screenshots, ready to upload
     01-benefit-slug.png
+    01-benefit-slug.aso.json
     02-benefit-slug.png
   showcase.png              ← preview image with all screenshots
 ```
 
-The `final/` folder contains App Store-ready screenshots at exact Apple dimensions (default: 1284×2778px for iPhone 6.7").
+The `final/` folder contains approved screenshots and their manifests. Verify dimensions against the intended App Store slot before upload.
 
 ## Files
 
@@ -89,6 +114,9 @@ The `final/` folder contains App Store-ready screenshots at exact Apple dimensio
 | `generate_frame.py` | Generates the device frame template |
 | `showcase.py` | Generates the side-by-side showcase image |
 | `assets/device_frame.png` | Pre-rendered iPhone device frame template |
+| `assets/laurel.png` | Mirrored branch used for verified social proof |
+| `references/layouts-and-state.md` | Layout and manifest contract |
+| `references/localization-and-qa.md` | Storefront localization and visual QA checklist |
 
 ## License
 

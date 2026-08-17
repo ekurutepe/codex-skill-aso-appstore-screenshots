@@ -1,0 +1,7 @@
+interface:
+  display_name: "ASO App Store Screenshots"
+  short_description: "Plan and generate localized App Store screenshots"
+  default_prompt: "Use $aso-appstore-screenshots to plan and generate a localized App Store screenshot set for this app."
+
+policy:
+  allow_implicit_invocation: true

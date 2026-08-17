@@ -5,6 +5,8 @@ Output: assets/device_frame.png — standalone device image (not positioned on c
 compose.py positions this dynamically based on text height.
 """
 
+from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageChops
 
 # ── Device dimensions ───────────────────────────────────────────────
@@ -84,7 +86,7 @@ def generate():
         radius=2, fill=btn_color,
     )
 
-    out = "assets/device_frame.png"
+    out = Path(__file__).with_name("assets") / "device_frame.png"
     frame.save(out, "PNG")
     print(f"✓ {out} ({DEVICE_W}×{DEVICE_H})")
     print(f"  BEZEL={BEZEL}, SCREEN_W={SCREEN_W}, SCREEN_H={SCREEN_H}")

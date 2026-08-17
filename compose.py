@@ -10,7 +10,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 CANVAS_W = 1284
 CANVAS_H = 2778
-FONT_PATH = "/Library/Fonts/SF-Pro-Display-Black.otf"
+FONT_CANDIDATES = (
+    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    "/System/Library/Fonts/SFNS.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "DejaVuSans-Bold.ttf",
+)
 ASSET_DIR = Path(__file__).with_name("assets")
 FRAME_PATH = ASSET_DIR / "device_frame.png"
 LAUREL_PATH = ASSET_DIR / "laurel.png"
@@ -27,7 +32,7 @@ LAYOUTS = {
         "max_verb_width": 1181,
         "max_text_width": 1181,
         "verb_desc_gap": 44,
-        "desc_line_gap": 24,
+        "desc_line_gap": 40,
     },
     "social-proof-vstack": {
         "text_top": 163,
@@ -39,14 +44,14 @@ LAYOUTS = {
         "desc_size_min": 72,
         "max_verb_width": 1040,
         "max_text_width": 1080,
-        "verb_desc_gap": 60,
-        "desc_line_gap": 24,
+        "verb_desc_gap": 44,
+        "desc_line_gap": 40,
         "proof_top": 625,
         "proof_badge_width": 520,
         "proof_gap": 80,
         "proof_text_width": 300,
-        "proof_top_line_offset": 130,
-        "proof_bottom_line_offset": 200,
+        "proof_center_y": 815,
+        "proof_line_gap": 18,
         "laurel_height": 330,
         "laurel_outset": 18,
     },
@@ -58,6 +63,21 @@ def hex_to_rgb(value):
     if len(value) != 6:
         raise ValueError(f"Expected a six-digit hex colour, got {value!r}")
     return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def resolve_font_path(explicit=None):
+    candidates = (explicit,) if explicit else FONT_CANDIDATES
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            ImageFont.truetype(candidate, 24)
+            return candidate
+        except OSError:
+            continue
+    if explicit:
+        raise ValueError(f"Could not load font {explicit!r}")
+    raise ValueError("No bold font found. Pass --font /path/to/a/font.ttf")
 
 
 def make_background(args):
@@ -101,9 +121,12 @@ def make_background(args):
 
 
 def word_wrap(draw, text, font, max_width):
+    has_spaces = any(character.isspace() for character in text)
+    tokens = text.split() if has_spaces else list(text)
+    separator = " " if has_spaces else ""
     lines, current = [], ""
-    for word in text.split():
-        candidate = f"{current} {word}".strip()
+    for word in tokens:
+        candidate = f"{current}{separator if current else ''}{word}"
         if draw.textlength(candidate, font=font) <= max_width:
             current = candidate
         else:
@@ -137,15 +160,17 @@ def draw_centered_lines(draw, top, text, font, max_width, line_gap):
     return y
 
 
-def exact_width_text(layer, font_path, center_x, center_y, text, target_width):
+def exact_width_image(font_path, text, target_width):
     font = fit_font(font_path, text, target_width, 110, 28)
     draw = ImageDraw.Draw(Image.new("L", (1, 1)))
     box = draw.textbbox((0, 0), text, font=font)
     line = Image.new("RGBA", (box[2] - box[0] + 8, box[3] - box[1] + 8))
     ImageDraw.Draw(line).text((4 - box[0], 4 - box[1]), text, font=font, fill="white")
-    line = line.crop(line.getchannel("A").getbbox())
-    line = line.resize((target_width, line.height), Image.Resampling.LANCZOS)
-    layer.alpha_composite(line, (center_x - target_width // 2, center_y - line.height // 2))
+    bounds = line.getchannel("A").getbbox()
+    if not bounds:
+        raise ValueError(f"Font {font_path!r} cannot render {text!r}")
+    line = line.crop(bounds)
+    return line.resize((target_width, line.height), Image.Resampling.LANCZOS)
 
 
 def parse_proof(value):
@@ -161,8 +186,8 @@ def parse_proof(value):
 
 
 def draw_social_proof(canvas, font_path, claims, layout, laurel_path):
-    if len(claims) > 2:
-        raise ValueError("Use at most two social-proof wreaths per screenshot")
+    if not 1 <= len(claims) <= 2:
+        raise ValueError("Use one or two social-proof wreaths per screenshot")
 
     branch = Image.open(laurel_path).convert("RGBA")
     branch = branch.crop(branch.getchannel("A").getbbox())
@@ -175,6 +200,7 @@ def draw_social_proof(canvas, font_path, claims, layout, laurel_path):
     gap = layout["proof_gap"]
     total_width = len(claims) * badge_width + (len(claims) - 1) * gap
     start_x = (CANVAS_W - total_width) // 2
+    badges = []
     for index, claim in enumerate(claims):
         x = start_x + index * (badge_width + gap)
         outset = layout["laurel_outset"]
@@ -184,22 +210,40 @@ def draw_social_proof(canvas, font_path, claims, layout, laurel_path):
             (x + badge_width + outset - white.width, layout["proof_top"]),
         )
         center_x = x + badge_width // 2
-        exact_width_text(
-            canvas,
-            font_path,
-            center_x,
-            layout["proof_top"] + layout["proof_top_line_offset"],
-            claim["top"].upper(),
-            layout["proof_text_width"],
+        top = exact_width_image(font_path, claim["top"], layout["proof_text_width"])
+        bottom = exact_width_image(font_path, claim["bottom"], layout["proof_text_width"])
+        stack_height = top.height + layout["proof_line_gap"] + bottom.height
+        stack_top = round(layout["proof_center_y"] - stack_height / 2)
+        canvas.alpha_composite(top, (center_x - top.width // 2, stack_top))
+        canvas.alpha_composite(
+            bottom,
+            (center_x - bottom.width // 2, stack_top + top.height + layout["proof_line_gap"]),
         )
-        exact_width_text(
-            canvas,
-            font_path,
-            center_x,
-            layout["proof_top"] + layout["proof_bottom_line_offset"],
-            claim["bottom"].upper(),
-            layout["proof_text_width"],
+        badges.append(
+            {
+                "x": x,
+                "width": badge_width,
+                "top": claim["top"],
+                "bottom": claim["bottom"],
+                "text_layout": {
+                    "top_y": stack_top,
+                    "top_height": top.height,
+                    "bottom_y": stack_top + top.height + layout["proof_line_gap"],
+                    "bottom_height": bottom.height,
+                },
+            }
         )
+    return {
+        "top": layout["proof_top"],
+        "badge_width": badge_width,
+        "gap": gap,
+        "proof_text_width": layout["proof_text_width"],
+        "proof_center_y": layout["proof_center_y"],
+        "proof_line_gap": layout["proof_line_gap"],
+        "laurel_height": height,
+        "laurel_outset": layout["laurel_outset"],
+        "badges": badges,
+    }
 
 
 def place_device(canvas, screenshot_path, device_y, device_width):
@@ -234,7 +278,19 @@ def place_device(canvas, screenshot_path, device_y, device_width):
     screen.putalpha(mask)
     canvas.alpha_composite(screen)
     canvas.alpha_composite(frame, (device_x, device_y))
-    return {"x": device_x, "y": device_y, "width": device_width, "frame": str(FRAME_PATH.resolve())}
+    return {
+        "x": device_x,
+        "y": device_y,
+        "width": device_width,
+        "frame": str(FRAME_PATH.resolve()),
+        "bezel": bezel,
+        "dynamic_island": {
+            "x": device_x + round(450 * scale),
+            "y": device_y + round(29 * scale),
+            "width": round(130 * scale),
+            "height": round(38 * scale),
+        },
+    }
 
 
 def resolved_layout(args):
@@ -248,12 +304,12 @@ def resolved_layout(args):
 
 def compose(args):
     layout = resolved_layout(args)
-    font_path = args.font or FONT_PATH
+    font_path = resolve_font_path(args.font)
     canvas, background_spec = make_background(args)
     draw = ImageDraw.Draw(canvas)
 
-    verb = args.verb.upper()
-    desc = args.desc.upper()
+    verb = args.verb.upper() if args.text_transform == "uppercase" else args.verb
+    desc = args.desc.upper() if args.text_transform == "uppercase" else args.desc
     verb_font = fit_font(
         font_path,
         verb,
@@ -268,6 +324,8 @@ def compose(args):
         layout["desc_size"],
         layout["desc_size_min"],
     )
+    verb_lines = word_wrap(draw, verb, verb_font, layout["max_verb_width"])
+    descriptor_lines = word_wrap(draw, desc, desc_font, layout["max_text_width"])
     text_bottom = draw_centered_lines(
         draw,
         layout["text_top"],
@@ -276,7 +334,7 @@ def compose(args):
         layout["max_verb_width"],
         layout["desc_line_gap"],
     )
-    draw_centered_lines(
+    final_text_bottom = draw_centered_lines(
         draw,
         text_bottom + layout["verb_desc_gap"],
         desc,
@@ -289,12 +347,19 @@ def compose(args):
     proof_mode = args.social_proof
     if proof_mode == "auto":
         proof_mode = "laurels" if claims else "none"
+    proof_parameters = None
     if proof_mode == "laurels":
         if not claims:
             raise ValueError("Laurel social proof requires at least one --proof claim")
         if "proof_top" not in layout:
             raise ValueError("Laurel social proof requires the social-proof-vstack layout")
-        draw_social_proof(canvas, font_path, claims, layout, args.laurel_asset or LAUREL_PATH)
+        proof_parameters = draw_social_proof(
+            canvas,
+            font_path,
+            claims,
+            layout,
+            args.laurel_asset or LAUREL_PATH,
+        )
 
     device = place_device(canvas, args.screenshot, layout["device_y"], layout["device_width"])
     output = Path(args.output)
@@ -305,7 +370,17 @@ def compose(args):
         "schema_version": 1,
         "output": str(output.resolve()),
         "canvas": {"width": CANVAS_W, "height": CANVAS_H},
-        "layout": {"name": args.layout, "parameters": layout},
+        "layout": {
+            "name": args.layout,
+            "parameters": {
+                **layout,
+                "visible_text_top": layout["text_top"],
+                "verb_lines": verb_lines,
+                "descriptor_lines": descriptor_lines,
+                "text_bottom": final_text_bottom,
+                "breakout": args.breakout,
+            },
+        },
         "background": background_spec,
         "content": {
             "verb": verb,
@@ -313,13 +388,19 @@ def compose(args):
             "locale": args.locale,
             "screenshot": str(Path(args.screenshot).resolve()),
         },
-        "typography": {"font": str(Path(font_path).resolve())},
+        "typography": {
+            "font": str(Path(font_path).resolve()) if Path(font_path).exists() else font_path,
+            "text_transform": args.text_transform,
+        },
         "device": device,
         "social_proof": {
             "mode": proof_mode,
             "laurel_asset": str(Path(args.laurel_asset or LAUREL_PATH).resolve()) if proof_mode == "laurels" else None,
             "claims": claims,
+            "parameters": proof_parameters,
         },
+        "primary_breakout": args.breakout,
+        "renderer": str(Path(__file__).resolve()),
     }
     manifest_path = Path(args.manifest) if args.manifest else output.with_suffix(".aso.json")
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -337,19 +418,21 @@ def main():
     parser.add_argument("--background-image", help="Exact background image to resize to the canvas")
     parser.add_argument("--background-reference", help="Approved screenshot whose edge colours define the background")
     parser.add_argument("--background-edge-width", type=int, default=48)
-    parser.add_argument("--font", help="Font path; defaults to SF Pro Display Black")
+    parser.add_argument("--font", help="Font path; a common system font is used when omitted")
+    parser.add_argument("--text-transform", choices=("uppercase", "none"), default="uppercase")
     parser.add_argument("--verb", required=True, help="Primary title/action verb")
     parser.add_argument("--desc", required=True, help="Benefit subtitle/descriptor")
     parser.add_argument("--locale", default="und", help="Storefront locale, e.g. en-US")
     parser.add_argument("--screenshot", required=True, help="Simulator screenshot path")
     parser.add_argument("--output", required=True, help="Output PNG path")
     parser.add_argument("--manifest", help="Output manifest path; defaults beside the PNG")
+    parser.add_argument("--breakout", type=json.loads, help="Optional JSON breakout specification stored in the manifest")
     parser.add_argument("--social-proof", choices=("auto", "none", "laurels"), default="auto")
     parser.add_argument(
         "--proof",
         action="append",
         default=[],
-        help='Repeat TOP|BOTTOM or JSON, e.g. {"kind":"downloads","top":"700K+","bottom":"DOWNLOADS"}',
+        help='Repeat TOP|BOTTOM or JSON, e.g. {"kind":"ratings","top":"4.8","bottom":"RATING"}',
     )
     parser.add_argument("--laurel-asset", help="Transparent single-branch laurel PNG")
 
