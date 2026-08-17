@@ -28,7 +28,7 @@ Default parameters for 1284×2778:
   "max_verb_width": 1181,
   "max_text_width": 1181,
   "verb_desc_gap": 44,
-  "desc_line_gap": 24
+  "desc_line_gap": 40
 }
 ```
 
@@ -56,20 +56,22 @@ Default parameters for 1284×2778:
   "desc_size_min": 72,
   "max_verb_width": 1040,
   "max_text_width": 1080,
-  "verb_desc_gap": 60,
-  "desc_line_gap": 24,
+  "verb_desc_gap": 44,
+  "desc_line_gap": 40,
   "proof_top": 625,
   "proof_badge_width": 520,
   "proof_gap": 80,
   "proof_text_width": 300,
-  "proof_top_line_offset": 130,
-  "proof_bottom_line_offset": 200,
+  "proof_center_y": 815,
+  "proof_line_gap": 18,
   "laurel_height": 330,
   "laurel_outset": 18
 }
 ```
 
 Treat these as starting values. When the user approves an adjustment, save the resolved values in that screenshot's manifest and reuse those values for later iterations of the same frame.
+
+`desc_line_gap` and `proof_line_gap` mean visible pixel clearance between rendered glyph bounds, not baseline distance. Keep these values constant within a device set. Keep `text_top` fixed across locales; move the device down when localized text needs more vertical room.
 
 ## Backgrounds
 
@@ -96,11 +98,11 @@ Only render a claim when its exact wording and evidence are supportable. For eac
 ```json
 {
   "kind": "downloads | ratings | app-store-feature | award | press | custom",
-  "top": "700K+",
-  "bottom": "DOWNLOADS",
+  "top": "4.8",
+  "bottom": "RATING",
   "source": "analytics report or public source",
   "verified_on": "YYYY-MM-DD",
-  "localizations": {"en-US": {"top": "700K+", "bottom": "DOWNLOADS"}},
+  "localizations": {"en-US": {"top": "4.8", "bottom": "RATING"}},
   "decision": "include | omit",
   "decision_reason": "user preference, experiment evidence, or ASO rationale"
 }
@@ -120,8 +122,12 @@ The manifest is the source of truth for future iterations and must contain:
 - Named layout and all resolved layout parameters
 - Exact background specification
 - Title, subtitle, locale, and font path
-- Device frame path, position, width, and simulator screenshot path
+- Resolved text lines, visible title top, line gaps, and text bottom
+- Device frame path, position, width, Dynamic Island geometry when applicable, and simulator screenshot path
 - Social-proof mode, laurel asset, exact claims, evidence, localization, and include/omit decision
+- Proof line gap and the measured text bounds inside each badge
+- Breakout source crop, output position, size, corner radius, and shadow when used
+- Font path and text transformation; add shaping metadata when a locale-specific renderer uses it
 - Style-template path and imagegen variant when applicable
 
 Before changing an existing screenshot, read its manifest first. Preserve every stored value except the fields the user explicitly asks to change. If an old screenshot has no manifest, measure or inspect it once, create the manifest, and then stop guessing.
@@ -140,8 +146,8 @@ Social-proof vertical stack:
 
 ```bash
 python3 compose.py --layout social-proof-vstack --bg-top "#D92700" --bg-bottom "#F36A13" \
-  --verb "KNOW" --desc "HOW MUCH LIGHT YOU HAVE" \
-  --proof '{"kind":"downloads","top":"700K+","bottom":"DOWNLOADS","source":"verified analytics","verified_on":"2026-08-16"}' \
-  --proof '{"kind":"app-store-feature","top":"FEATURED IN","bottom":"APP STORE","source":"Apple editorial feature","verified_on":"2026-08-16"}' \
-  --screenshot source.png --output 01-know.png
+  --verb "TRACK" --desc "YOUR DAILY PROGRESS" \
+  --proof '{"kind":"ratings","top":"4.8","bottom":"RATING","source":"verified store data","verified_on":"2026-01-15"}' \
+  --proof '{"kind":"award","top":"BEST OF","bottom":"2025","source":"verified award page","verified_on":"2026-01-15"}' \
+  --screenshot source.png --output 01-track.png
 ```

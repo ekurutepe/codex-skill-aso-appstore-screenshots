@@ -225,14 +225,13 @@ If the built-in `image_gen` tool is unavailable, tell the user directly and cont
 
 ### App Store Connect Dimensions
 
-App Store Connect is **very strict** about image dimensions — it will reject screenshots that don't match exactly. The only accepted portrait sizes are:
+App Store Connect is strict about image dimensions and Apple changes its preferred display classes over time. Verify the current requirements against Apple's official screenshot specification before rendering or uploading.
 
-| Display | Portrait | Landscape |
+| Included renderer target | Portrait | Landscape |
 |---------|----------|-----------|
-| iPhone 6.5" | 1242 x 2688px | 2688 x 1242px |
-| iPhone 6.7" | 1284 x 2778px | 2778 x 1284px |
+| iPhone 6.5" accepted size | 1284 x 2778px | 2778 x 1284px |
 
-Default to **1284 x 2778px** (iPhone 6.7") unless the user specifies otherwise. Ask the user which size(s) they need. Up to 10 screenshots can be uploaded per display size.
+`compose.py` currently renders the included iPhone frame at **1284 x 2778px**. For other Apple display classes, create or select a matching device-specific renderer and record its exact canvas and frame in the manifest; never stretch the iPhone frame into an iPad shape. Up to 10 screenshots can be uploaded per display size.
 
 **IMPORTANT — Dimension enforcement**: App Store Connect requires exact pixel dimensions. Even when a generated image looks correct, always verify and, if needed, crop/resize the saved output to the selected App Store dimensions before showing it to the user. Never submit or present an unverified generated image as final.
 
@@ -246,14 +245,12 @@ Each screenshot follows this exact high-converting ASO format. **Consistency acr
 - Treat download milestones, editorial recognition, ratings, awards, or press mentions as conversion elements, not decoration.
 - Confirm that every claim is current and supportable before generation. Never round up beyond the verified milestone or imply an endorsement that did not occur.
 - Put the strongest proof in the first three screenshots. Prefer no more than two proof treatments in the set so product benefits remain primary.
-- Social-proof frames are exempt from the action-verb headline rule. A dedicated proof frame may use a large claim such as `700K+` with `DOWNLOADS`, or `FEATURED` with `BY APPLE`.
+- Social-proof frames are exempt from the action-verb headline rule. A dedicated proof frame may use a verified rating, download milestone, editorial feature, award, or press claim.
 - Recreate the proven legacy treatment when available: a symmetrical pair of simple laurel branches framing the claim, high contrast, generous clear space, and no competing decorative elements.
 - A proof badge may instead sit in unused space on a benefit screenshot, but it must remain readable at thumbnail size and must not cover the app UI or headline.
 - Localize the descriptor naturally for each storefront while keeping numerals and the Apple name accurate. Re-check line breaks in every rendered locale.
 - Save the exact approved claim, source, locale wording, screenshot position, and last verification date to memory.
 - Save the user's explicit include/omit decision. If evidence or preference is insufficient to decide, ask one concise question covering whether to use laurels and the exact verified claims. Remember the answer and do not ask again unless the evidence, wording, locale, or preference changes.
-
-**SolarWatch precedent:** The current Product Page Optimization experiment `bffc8aab-372d-49cd-a188-c8c05b156791` is performing well with legacy English screenshots mixed with new localized screenshots, while the preceding all-new localized treatment was flat. Preserve and test the legacy trust motifs in the evergreen set: `700K+ DOWNLOADS` and `FEATURED BY APPLE`, each framed by laurel leaves. Keep these as controlled variables; do not infer that localization or the new product-benefit frames are ineffective from this comparison alone.
 
 ### Explicit layout choice
 
@@ -264,10 +261,10 @@ Choose and name one layout before rendering:
 
 Use `regular` by default. Use `social-proof-vstack` only when the social-proof decision is `include`. Preserve the main title and benefit subtitle as the dominant message. Load exact defaults and override rules from `references/layouts-and-state.md`.
 
-**Typography (MUST be uniform across ALL screenshots in the set)**:
-- **Line 1 — Action verb**: The single action verb (e.g., "TRACK", "SEARCH", "BOOST"). This is the BIGGEST, boldest text on the screenshot. White, uppercase, center-aligned. Same font, same size, same weight on every screenshot.
-- **Line 2 — Benefit descriptor**: The rest of the headline (e.g., "TRADING CARD PRICES", "ANY VERSE IN SECONDS"). Noticeably smaller than line 1, but still bold, white, uppercase, center-aligned. Same font, same size, same weight on every screenshot.
-- **Font**: Heavy/black weight sans-serif (e.g., SF Pro Display Black, Inter Black, or similar high-impact font). Not just bold — heavy/black weight for maximum impact.
+**Typography (MUST be visually consistent across the set)**:
+- **Line 1 — Action verb**: The single action verb (e.g., "TRACK", "SEARCH", "BOOST"). This is the biggest, boldest text on the screenshot. Use the same visible top position and visual weight throughout each device set.
+- **Line 2 — Benefit descriptor**: The rest of the headline. Keep the hierarchy, visible line spacing, and alignment constant. Permit localized font sizes and line counts to vary when required to fit naturally.
+- **Font**: Use the user's approved font when supplied. Otherwise let `compose.py` choose a common system bold font. Use locale-appropriate fallback fonts for scripts the primary font cannot render, and record every resolved font path in the manifest.
 - **Positioning**: Text sits in the top ~20-25% of the canvas with comfortable padding from the top edge.
 - **Horizontal safe area (CRITICAL)**: All text MUST stay well within the centre ~70% of the canvas width. Leave generous horizontal margins on both sides — at least 15% padding from each edge. This is essential because the post-processing step crops the sides of the image to convert from 9:16 to Apple's narrower aspect ratio. Any text near the left or right edges WILL be cut off. Keep headlines short enough to fit comfortably within this safe zone. If a headline is too long, break it across more lines rather than extending to the edges.
 
@@ -278,6 +275,10 @@ Use `regular` by default. Use `social-proof-vstack` only when the social-proof d
 - The device is **positioned high on the canvas** — it overlaps or sits just below the headline text area, NOT pushed down to the bottom
 - The bottom of the device **bleeds off the bottom edge** of the canvas — the phone is intentionally cropped, not fully visible. This creates a dynamic, modern feel.
 - The device is centered horizontally
+
+### Localization and final QA
+
+For localized sets, read [`references/localization-and-qa.md`](references/localization-and-qa.md) completely before rendering. Lock the visible title top across locales, preserve constant visible line gaps, inspect RTL and CJK output separately, and check every final image for overlaps, clipping, incorrect shaping, inconsistent backgrounds, and missing device hardware. It is acceptable to move the device down to make room for localized copy; record the override in the manifest.
 
 **Breakout elements (optional — only when obvious and relevant)**:
 Breakout elements can give screenshots personality and make them feel dynamic. But they should only be used when there is an obvious UI panel on the app screen that directly relates to the benefit headline. A clean screenshot with no breakout is better than a forced or irrelevant one.
@@ -338,7 +339,7 @@ This outputs pixel-perfect 1284×2778 PNGs with:
 - Bold white headline text (verb auto-sized to fit canvas width)
 - iPhone device frame (from pre-rendered template)
 - Simulator screenshot composited inside the frame
-- Solid background colour
+- The selected reproducible background specification
 - A sibling `.aso.json` manifest containing the named layout, all resolved parameters, exact background, source paths, typography, device placement, and social-proof configuration
 
 For a verified proof frame, use `--layout social-proof-vstack`, repeat `--proof` once or twice, and pass any approved parameter overrides. See `references/layouts-and-state.md` for the exact command and claim schema.
@@ -463,9 +464,7 @@ done
 
 The script crops to the correct aspect ratio (top-center aligned — sides trimmed equally, top edge preserved so the headline stays put) and resizes to exact pixel dimensions. The resized image is saved as a separate file with `-resized.png` appended.
 
-Target dimensions per display size — adjust `TARGET_W` and `TARGET_H`:
-- iPhone 6.5": `TARGET_W=1242 TARGET_H=2688`
-- iPhone 6.7" (default): `TARGET_W=1284 TARGET_H=2778`
+The bundled renderer targets `TARGET_W=1284 TARGET_H=2778`, an accepted iPhone 6.5-inch size. Apple also accepts other dimensions and updates its preferred display classes over time; verify the current official specification before changing these values.
 
 **Step 4: Review all 3 versions with the user**
 
@@ -565,7 +564,7 @@ After each screenshot is generated (or after the full set is complete), save gen
 
 - **Brand colour**: name + hex code
 - **Background specification**: solid colour, exact gradient stops, or background image path
-- **Target display size**: e.g., iPhone 6.7" (1284x2778)
+- **Target display size**: e.g., iPhone 6.5" accepted size (1284x2778)
 - **For each generated screenshot**:
   - Benefit headline (ACTION VERB + DESCRIPTOR)
   - Benefit subfolder path (e.g., `screenshots/01-track-card-prices/`)
