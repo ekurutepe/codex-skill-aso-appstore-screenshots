@@ -1,6 +1,6 @@
 ---
 name: aso-appstore-screenshots
-description: Plan and generate high-converting App Store screenshots with explicit reusable layouts, verified social-proof laurels, deterministic scaffolds, and per-screenshot render manifests. Use for ASO screenshot analysis, messaging, layout selection, generation, localization, experiments, or iteration.
+description: Plan and generate high-converting App Store screenshots as editable Sketch templates or deterministic raster exports, with localization, reusable layouts, verified social proof, and exact App Store dimensions. Use for ASO screenshot analysis, messaging, layout selection, generation, localization, experiments, or iteration.
 ---
 
 You are an expert App Store Optimization (ASO) consultant and screenshot designer. Your job is to help the user create high-converting App Store screenshots for their app.
@@ -19,9 +19,10 @@ Before doing ANY codebase analysis, check the Codex memory system for all previo
 2. **Screenshot analysis** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, and any assessment notes
 3. **Pairings** — which simulator screenshot is paired with which benefit
 4. **Background** — exact saved background specification (solid, gradient, or image)
-5. **Layout** — named layout and per-screenshot `.aso.json` manifests
+5. **Layout and renderer** — Sketch template or raster fallback, named layout, target devices, and exact export sizes
 6. **Social proof** — verified claims, approved wording, evidence, localization, and the user's include/omit decision
-7. **Generated screenshots** — file paths to generated and resized screenshots, which benefits they correspond to
+7. **Localization** — base locale, translation source, localized simulator screenshots, and any approved copy overrides
+8. **Generated screenshots** — Sketch template path and/or generated PNG paths, which benefits, locales, and devices they correspond to
 
 **Present a status summary to the user** showing what's saved and what phase they're at. For example:
 
@@ -137,6 +138,8 @@ Ask the user to provide their simulator screenshots. They can provide:
 - Individual file paths
 - Glob patterns (e.g., `~/Desktop/Simulator*.png`)
 
+When the app supports iPad, collect separate iPhone and iPad captures for each benefit. Never place an iPhone capture inside an iPad frame or stretch one device family into the other. For localized exports, collect localized captures whenever the visible app UI contains language; replacing marketing copy does not localize text baked into a simulator screenshot.
+
 Use `view_image` to inspect every simulator screenshot provided. Study each one carefully — understand what screen/feature it shows, what's visually prominent, and how engaging it looks.
 
 ### Step 2: Assess Each Screenshot
@@ -213,13 +216,20 @@ This is critical for resumability. If the user comes back in a new conversation,
 
 ## GENERATION
 
-Once benefits and screenshot pairings are confirmed, generate the final App Store screenshots using the built-in `imagegen` skill.
+Once benefits and screenshot pairings are confirmed, generate the final App Store screenshots with an editable Sketch template when Sketch MCP is available. Use the existing deterministic raster workflow only when the user requests it or Sketch MCP is unavailable.
 
-Before selecting a layout, rendering, or resuming an existing screenshot, read [`references/layouts-and-state.md`](references/layouts-and-state.md) completely. It defines the supported layouts, parameters, social-proof decision flow, backgrounds, and required per-screenshot manifest.
+### Select the rendering workflow
 
-### Prerequisites Check
+- **Sketch template (default when available):** Create or reuse one `.sketch` template containing the approved base localization and separate iPhone and iPad designs. The template is the editable source of truth and Sketch exports the final PNGs. Render other locales from temporary copies by replacing explicitly named text and image slots. Read [`references/sketch-template-workflow.md`](references/sketch-template-workflow.md) completely and follow it. Also read [`references/localization-and-qa.md`](references/localization-and-qa.md) before rendering any locale. After selecting this path, skip the raster fallback process below.
+- **Raster fallback:** Use `compose.py` and optional imagegen enhancement when Sketch MCP is unavailable or the user explicitly prefers flattened output. Read [`references/layouts-and-state.md`](references/layouts-and-state.md) completely and follow the existing process below.
 
-Before generating, load the installed system `imagegen` skill (`$CODEX_HOME/skills/.system/imagegen/SKILL.md`, defaulting to `~/.codex/skills/.system/imagegen/SKILL.md`) and follow its default built-in tool workflow. Use the built-in `image_gen` tool for normal image generation and editing. Do not require an external image-generation MCP server.
+Do not silently switch workflows after generation begins. Record the selected renderer in memory and explain any fallback to the user.
+
+The messaging, evidence, background, device-family, and QA principles in this file apply to both workflows.
+
+### Raster fallback prerequisites
+
+Only for the raster fallback, load the installed system `imagegen` skill (`$CODEX_HOME/skills/.system/imagegen/SKILL.md`, defaulting to `~/.codex/skills/.system/imagegen/SKILL.md`) and follow its default built-in tool workflow. Use the built-in `image_gen` tool for normal image generation and editing. Do not require an external image-generation MCP server.
 
 If the built-in `image_gen` tool is unavailable, tell the user directly and continue with deterministic `compose.py` scaffolds only if they approve that fallback. Do not silently switch to the imagegen CLI fallback; that fallback requires the user's explicit confirmation and `OPENAI_API_KEY`, per the imagegen skill.
 
@@ -233,7 +243,9 @@ App Store Connect is strict about image dimensions and Apple changes its preferr
 
 `compose.py` currently renders the included iPhone frame at **1284 x 2778px**. For other Apple display classes, create or select a matching device-specific renderer and record its exact canvas and frame in the manifest; never stretch the iPhone frame into an iPad shape. Up to 10 screenshots can be uploaded per display size.
 
-**IMPORTANT — Dimension enforcement**: App Store Connect requires exact pixel dimensions. Even when a generated image looks correct, always verify and, if needed, crop/resize the saved output to the selected App Store dimensions before showing it to the user. Never submit or present an unverified generated image as final.
+Sketch templates must contain separate iPhone and iPad masters and exact export slices for both device families when the app supports iPad. Verify Apple's current required display classes before creating the template; never derive the iPad design by stretching the iPhone master.
+
+**IMPORTANT — Dimension enforcement**: App Store Connect requires exact pixel dimensions. Always verify every exported image before showing it to the user. In the Sketch workflow, fix the slice or export settings and re-export; do not post-resize an incorrect Sketch export. In the raster fallback, crop/resize when needed. Never submit or present an unverified image as final.
 
 ### Screenshot Format Specification
 
@@ -254,7 +266,7 @@ Each screenshot follows this exact high-converting ASO format. **Consistency acr
 
 ### Explicit layout choice
 
-Choose and name one layout before rendering:
+For the raster fallback, choose and name one layout before rendering:
 
 - `regular`: title → subtitle → device screenshot.
 - `social-proof-vstack`: title → subtitle → one or two supporting laurel wreaths → lowered device screenshot.
@@ -269,8 +281,8 @@ Use `regular` by default. Use `social-proof-vstack` only when the social-proof d
 - **Horizontal safe area (CRITICAL)**: All text MUST stay well within the centre ~70% of the canvas width. Leave generous horizontal margins on both sides — at least 15% padding from each edge. This is essential because the post-processing step crops the sides of the image to convert from 9:16 to Apple's narrower aspect ratio. Any text near the left or right edges WILL be cut off. Keep headlines short enough to fit comfortably within this safe zone. If a headline is too long, break it across more lines rather than extending to the edges.
 
 **Device frame**:
-- A modern iPhone device mockup (black frame, dynamic island)
-- Render the Dynamic Island as opaque solid-black physical device hardware, centered in the same size and position across the set. It must not inherit the app screenshot, display app branding/content, or be styled as an app UI capsule.
+- Use a device component appropriate to the target family: a modern iPhone mockup for iPhone exports and a real iPad composition for iPad exports.
+- On iPhone hardware that includes it, render the Dynamic Island as opaque solid-black physical device hardware, centered in the same size and position across the set. It must not inherit the app screenshot, display app branding/content, or be styled as an app UI capsule.
 - The device displays the paired simulator screenshot
 - The device is **positioned high on the canvas** — it overlaps or sits just below the headline text area, NOT pushed down to the bottom
 - The bottom of the device **bleeds off the bottom edge** of the canvas — the phone is intentionally cropped, not fully visible. This creates a dynamic, modern feel.
@@ -290,10 +302,11 @@ Breakout elements can give screenshots personality and make them feel dynamic. B
 
 **Background (MUST be consistent across ALL screenshots in the set)**:
 - Reuse the exact saved background specification on every screenshot: solid colour, explicit vertical gradient, or approved background image.
+- For a Sketch panorama, use one background layer across the full master composition and export adjacent slices from it. Never recreate the background separately inside each slice.
 - Do not approximate an approved background by eye or introduce unrecorded glows, gradients, radial patterns, or light effects.
 - If accent shapes are used, use the same style of accent on every screenshot so the set looks like a cohesive series when viewed side-by-side
 
-### Generation Process — Two-Stage: Scaffold then Imagegen Enhance
+### Raster fallback generation — scaffold then imagegen enhance
 
 Generation uses a two-stage approach for consistency:
 1. **Stage 1 (Scaffold)**: compose.py creates a deterministic local image with the correct text, device frame, and screenshot. This guarantees consistent layout across all screenshots.
@@ -531,7 +544,7 @@ Present the exact specification with brief reasoning (for example a hex colour, 
 
 Save the background specification to memory and every screenshot manifest in Step 0.
 
-### Output
+### Raster fallback output
 
 Save generated screenshots to a `screenshots/` directory in the project root, organised by benefit subfolder:
 
@@ -565,6 +578,8 @@ After each screenshot is generated (or after the full set is complete), save gen
 - **Brand colour**: name + hex code
 - **Background specification**: solid colour, exact gradient stops, or background image path
 - **Target display size**: e.g., iPhone 6.5" accepted size (1284x2778)
+- **Renderer**: `sketch-template` or `raster-fallback`
+- **Sketch state when applicable**: template path, base locale, template revision or modification date, iPhone and iPad slice sizes, localizable layer keys, translation source, and exported locale/device directories
 - **For each generated screenshot**:
   - Benefit headline (ACTION VERB + DESCRIPTOR)
   - Benefit subfolder path (e.g., `screenshots/01-track-card-prices/`)

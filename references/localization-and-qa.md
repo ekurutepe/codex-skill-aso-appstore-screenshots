@@ -5,6 +5,8 @@ Read this file before rendering multiple storefronts or approving final screensh
 ## Localization contract
 
 - Start from approved source-language copy and localize the benefit, not its word order.
+- In the Sketch workflow, keep only the approved base locale in the template. Render other locales from temporary copies by replacing unique `loc.*` text keys and `shot.*` image slots as defined in [`sketch-template-workflow.md`](sketch-template-workflow.md).
+- Replacing marketing strings does not localize text inside simulator screenshots. Require localized iPhone and iPad captures whenever the visible app UI contains language.
 - Keep the visible top of the primary title identical across locales for each device set.
 - Keep visible subtitle line spacing constant even when localized copy wraps to more lines.
 - Use the approved brand font where it supports the script. Otherwise select a heavy locale-appropriate fallback and save its path, collection index, language, and direction in the manifest.
@@ -35,5 +37,8 @@ Inspect every exported image at full size and as a small storefront thumbnail. R
 - A background that differs from the saved specification
 - A device or breakout shifted relative to its manifest
 - Alpha transparency or dimensions that do not match the intended App Store slot
+- Missing or duplicate Sketch localization keys
+- An iPhone capture or device component in an iPad export, or the reverse
+- Discontinuities when Sketch slices are reconstructed edge-to-edge
 
 Run automated dimension and mode checks after visual review. Automation does not replace per-locale inspection.

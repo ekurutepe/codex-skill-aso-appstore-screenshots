@@ -10,7 +10,8 @@ A Codex skill (`aso-appstore-screenshots`) that guides users through creating hi
 
 The core files are:
 
-- **SKILL.md** — The skill prompt. Defines a multi-phase workflow: Benefit Discovery → Screenshot Pairing → Generation. Uses Codex memory to persist state across conversations so users can resume mid-workflow. Generation first creates a deterministic scaffold via compose.py, then enhances it with the built-in imagegen workflow.
+- **SKILL.md** — The skill prompt. Defines a multi-phase workflow: Benefit Discovery → Screenshot Pairing → Generation. Uses Codex memory to persist state across conversations so users can resume mid-workflow. Sketch MCP is the primary editable generation path; compose.py remains the raster fallback.
+- **references/sketch-template-workflow.md** — Defines the single-template Sketch workflow, separate iPhone and iPad panorama masters, temporary localization copies, stable replacement keys, slice export, and QA.
 - **compose.py** — Deterministically renders the `regular` and `social-proof-vstack` layouts and writes a sibling `.aso.json` manifest with resolved parameters, background, source paths, and social-proof configuration.
 - **references/layouts-and-state.md** — Defines layout defaults, background forms, social-proof decisions, evidence memory, and the per-screenshot manifest contract.
 - **references/localization-and-qa.md** — Defines cross-storefront typography, alignment, spacing, and visual approval checks.

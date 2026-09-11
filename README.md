@@ -8,8 +8,8 @@ A reusable Codex skill for planning, localizing, rendering, and iterating App St
 2. **Screenshot Pairing** — Reviews your simulator screenshots, rates them, and pairs each with the best benefit
 3. **Layouts** — Renders regular benefit frames or benefit-first social-proof frames with verified laurel claims
 4. **Localization QA** — Preserves alignment and spacing while checking RTL, CJK, and long translations
-5. **Generation** — Creates deterministic scaffolds (`compose.py`) with optional built-in `imagegen` enhancement
-6. **Reproducibility** — Writes a sibling `.aso.json` manifest for every scaffold
+5. **Editable generation** — Creates one Sketch template with base-localized iPhone and iPad designs, then exports localized PNGs through Sketch MCP
+6. **Raster fallback** — Creates deterministic `compose.py` scaffolds with optional built-in `imagegen` enhancement when Sketch is unavailable
 
 ## Installation
 
@@ -51,9 +51,15 @@ The skill will guide you through each phase interactively. Progress is saved to 
 
 ## How It Works
 
-### Scaffold → Enhance Pipeline
+### Sketch template pipeline
 
-Rather than generating screenshots from scratch (which produces inconsistent results), the skill uses a two-stage approach:
+When Sketch MCP is available, the skill creates one editable `.sketch` template containing the approved base localization and separate iPhone and iPad panorama masters. Other locales render from temporary copies by replacing stable text and simulator-screenshot slots; Sketch exports the final App Store PNG slices directly.
+
+The template remains the design source of truth. Localized pages do not accumulate in it unless a designer explicitly asks to retain one for hand-tuning.
+
+### Raster fallback
+
+When Sketch MCP is unavailable or flattened output is explicitly requested, the skill uses a two-stage approach:
 
 1. **compose.py** creates a deterministic scaffold with exact text positioning, device frame, and your simulator screenshot composited inside
 2. Codex's built-in **imagegen** workflow enhances the scaffold — adding a polished device frame, breakout elements, and visual polish
@@ -117,6 +123,7 @@ The `final/` folder contains approved screenshots and their manifests. Verify di
 | `assets/laurel.png` | Mirrored branch used for verified social proof |
 | `references/layouts-and-state.md` | Layout and manifest contract |
 | `references/localization-and-qa.md` | Storefront localization and visual QA checklist |
+| `references/sketch-template-workflow.md` | Editable Sketch template, localization, panorama, and slice-export workflow |
 
 ## License
 
