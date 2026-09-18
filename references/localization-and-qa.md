@@ -7,7 +7,7 @@ Read this file before rendering multiple storefronts or approving final screensh
 - Start from approved source-language copy and localize the benefit, not its word order.
 - In the Sketch workflow, keep only the approved base locale in the template. Render other locales from temporary copies by replacing unique `loc.*` text keys and `shot.*` image slots as defined in [`sketch-template-workflow.md`](sketch-template-workflow.md).
 - Replacing marketing strings does not localize text inside simulator screenshots. Require localized iPhone and iPad captures whenever the visible app UI contains language.
-- Keep the visible top of the primary title identical across locales for each device set.
+- Keep the visible top of the primary title identical across locales for the same panel in each device family.
 - Keep visible subtitle line spacing constant even when localized copy wraps to more lines.
 - Use the approved brand font where it supports the script. Otherwise select a heavy locale-appropriate fallback and save its path, collection index, language, and direction in the manifest.
 - Pass `--text-transform none` when uppercasing would be unnatural or harmful.
@@ -17,7 +17,7 @@ Read this file before rendering multiple storefronts or approving final screensh
 
 ## Layout invariants
 
-- Keep `visible_text_top`, background, title hierarchy, and device centering consistent across locales.
+- Keep each panel's approved `visible_text_top`, background, title hierarchy, and device placement consistent across locales. Different panels may use different approved layouts.
 - Define line gaps as visible empty pixels between glyph bounds, not baseline distance.
 - Keep laurel text centered in the widest usable area of the wreath with explicit horizontal clearance.
 - Move the device down when localized copy needs more room. Never tighten text until lines nearly touch.
@@ -30,7 +30,7 @@ Inspect every exported image at full size and as a small storefront thumbnail. R
 
 - Overlapping text, laurels, device hardware, or breakout elements
 - Clipped glyphs or text outside the safe area
-- Inconsistent title-top alignment or line spacing
+- Title anchoring or line spacing that differs from that panel's approved composition
 - Incorrect RTL shaping or CJK wrapping
 - Wreath text touching leaves or using inconsistent vertical gaps
 - A missing, translucent, or content-filled Dynamic Island
@@ -42,3 +42,7 @@ Inspect every exported image at full size and as a small storefront thumbnail. R
 - Discontinuities when Sketch slices are reconstructed edge-to-edge
 
 Run automated dimension and mode checks after visual review. Automation does not replace per-locale inspection.
+
+## Full-set review
+
+Inspect all exported panels together at storefront size against the constitution: obvious category, action demonstrated in frame one, headline/hero attention priority, and result delivered in frame two. Check balance, rhythm, shared visual identity, and the distinct value of subsequent panels. Compare each localized set with the approved storyboard; intentional panel variations are not QA failures. A three-panel showcase cannot replace this complete-set review.

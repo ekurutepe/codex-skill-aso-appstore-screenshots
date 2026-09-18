@@ -51,8 +51,12 @@ Each device page contains one master frame sized `screenshot_count * slice_width
 ```text
 Master Panorama
   Background
+  Background Artwork
   Devices
+  Foreground Artwork
+  Fades
   Copy
+  Feature Badges
   Social Proof
 Export Slices
   01
@@ -62,7 +66,7 @@ Export Slices
 
 Requirements:
 
-- Use one background layer across the full master so imagery is continuous.
+- Use one background group across the full master, containing the approved panel treatments and any continuous imagery. Panel backgrounds may vary within the shared visual system; crossing imagery must remain continuous.
 - Position device groups in master coordinates. A single device may cross one screenshot boundary; do not duplicate halves into adjacent panels.
 - Place slices edge-to-edge at `x = index * slice_width`, with no gutters, overlap, or transparent pixels. Each slice is exactly the selected App Store size and exports as an opaque PNG at 1x.
 - Keep essential copy inside one slice. Backgrounds and devices may cross boundaries, but every screenshot should remain understandable when viewed alone.
@@ -100,9 +104,9 @@ When creating a new template through MCP:
 1. Create and save the document at `screenshots/AppStore-Screenshots.sketch`.
 2. Create the component page and separate iPhone and iPad template pages.
 3. Create each device master and its continuous background.
-4. Add reusable device components, masked base-locale screenshots, editable copy, and verified social proof.
+4. Implement the approved storyboard with the layout toolbelt in `layouts-and-state.md`: reusable device components where needed, masked base-locale screenshots or result crops, background/foreground artwork, fades, editable copy, secondary badges, and verified social proof. Photo-led panels need not contain a device.
 5. Add the exact export slices last and name them in App Store order.
-6. Screenshot-verify both complete masters and representative individual slices.
+6. Screenshot-verify the complete masters as storefront-size contact sheets against the constitution and set-review criteria, plus representative individual slices. Approve the rough set direction before polishing individual panels.
 7. Save only after the base localization is approved.
 
 Do not build the whole document in one opaque `run_code` call. Keep creation incremental according to the MCP guide so every structural or visual batch can be inspected.
@@ -136,7 +140,7 @@ The base locale may export directly from the approved template. For every other 
 3. Resolve and validate every required text and image key, then record its ID.
 4. Replace native `Text.text` values or symbol string overrides by ID. Replace localized screenshot image overrides by ID where required.
 5. For symbol instances, call `resizeWithSmartLayout()` after changing text when the component uses Smart Layout.
-6. Preserve the approved visible title top and line gaps. Honor explicit localized line breaks first, then reduce font size only to the approved minimum. Move the device down when necessary. Never shrink text until it is technically contained but unreadable.
+6. Preserve each panel's approved visible title anchor and line gaps. Honor explicit localized line breaks first, then reduce font size only to the approved minimum. Move the device down when necessary. Never shrink text until it is technically contained but unreadable.
 7. Treat RTL and CJK locales as separate visual QA cases. Do not mirror the panorama automatically; use the approved reading direction and inspect the actual result.
 8. Use `get_screenshot` to inspect the complete iPhone and iPad masters and any panel whose copy or screenshot changed materially. Fix clipping, overflow, shaping, or collisions before export.
 9. Export the named slices through Sketch as opaque 1x PNG files.

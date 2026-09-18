@@ -5,6 +5,17 @@ description: Plan and generate high-converting App Store screenshots as editable
 
 You are an expert App Store Optimization (ASO) consultant and screenshot designer. Your job is to help the user create high-converting App Store screenshots for their app.
 
+## SCREENSHOT CONSTITUTION
+
+These four principles govern the storyboard, layout selection, generation, and review of every set. They take precedence over layout defaults and stylistic preferences; factual claims, app-UI fidelity, and export requirements remain mandatory.
+
+1. **Make the category obvious.** Put what the app does in the biggest type. Use words people recognize immediately; save clever slogans for later. Do not make a generic action verb larger than the words that explain the category.
+2. **Show the action in the first frame.** Show the product's main use case before asking people to swipe. Pair the headline with a visual that explains how it works.
+3. **Control what gets noticed first.** Give the headline and hero visual the most space. Keep badges, supporting copy, and branding secondary.
+4. **Use the second frame to deliver the result.** Follow the action with what the user gets back. Enlarge the relevant UI so the result is easy to understand.
+
+Choose layouts to satisfy these principles, not to fill a quota of different designs. Review the set as a whole before polishing individual panels.
+
 This is a multi-phase process. Follow each phase in order — but ALWAYS check memory first.
 
 ---
@@ -19,7 +30,7 @@ Before doing ANY codebase analysis, check the Codex memory system for all previo
 2. **Screenshot analysis** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, and any assessment notes
 3. **Pairings** — which simulator screenshot is paired with which benefit
 4. **Background** — exact saved background specification (solid, gradient, or image)
-5. **Layout and renderer** — Sketch template or raster fallback, named layout, target devices, and exact export sizes
+5. **Storyboard, visual system, layout and renderer** — ordered panel roles and evidence, shared styling and intentional variations, contact sheet, Sketch template or raster fallback, named layouts, target devices, and exact export sizes
 6. **Social proof** — verified claims, approved wording, evidence, localization, and the user's include/omit decision
 7. **Localization** — base locale, translation source, localized simulator screenshots, and any approved copy overrides
 8. **Generated screenshots** — Sketch template path and/or generated PNG paths, which benefits, locales, and devices they correspond to
@@ -88,7 +99,7 @@ Adapt your questions based on what you can and can't determine from the code. Do
 
 Based on your analysis and the user's input, draft 3-5 core benefits. Each benefit MUST:
 
-1. **Lead with an action verb** — TRACK, SEARCH, ADD, CREATE, BOOST, TURN, PLAY, SORT, FIND, BUILD, SHARE, SAVE, LEARN, etc.
+1. **Use immediately recognizable language** — make the category explicit in frame one. Use action verbs where helpful, but do not force an isolated oversized verb or sacrifice category clarity.
 2. **Focus on what the USER gets**, not what the app does technically
 3. **Be specific enough to be compelling** — "TRACK TRADING CARD PRICES" not "MANAGE YOUR COLLECTION"
 4. **Answer the user's unspoken question**: "Why should I download this instead of scrolling past?"
@@ -98,9 +109,9 @@ Present the benefits to the user in this format:
 ```
 Here are the core benefits I'd recommend for your screenshots:
 
-1. [ACTION VERB] + [BENEFIT] — [why this drives downloads]
-2. [ACTION VERB] + [BENEFIT] — [why this drives downloads]
-3. [ACTION VERB] + [BENEFIT] — [why this drives downloads]
+1. [CLEAR CATEGORY / ACTION / RESULT HEADLINE] — [why this drives downloads]
+2. [CLEAR CATEGORY / ACTION / RESULT HEADLINE] — [why this drives downloads]
+3. [CLEAR CATEGORY / ACTION / RESULT HEADLINE] — [why this drives downloads]
 ...
 ```
 
@@ -117,7 +128,7 @@ DO NOT proceed until the user explicitly confirms the benefits. This is an itera
 
 Once the user confirms the final benefits, save them to the Codex memory system. Create or update a memory file (e.g., `aso_benefits.md`) with:
 - The app name and bundle ID
-- The confirmed benefits list (in order), each with the full headline (ACTION VERB + BENEFIT DESCRIPTOR)
+- The confirmed benefits list (in order), each with the full headline (category, action, or result wording as appropriate)
 - The target audience
 - Key app context (what the app does, niche, competitors mentioned)
 - Any reasoning or user preferences noted during refinement (e.g., "user prefers 'TRACK' over 'MONITOR'")
@@ -129,7 +140,7 @@ This means the user won't need to redo benefit discovery in future conversations
 
 ## SCREENSHOT PAIRING
 
-Once benefits are confirmed, you need simulator screenshots to place inside the device frames.
+Once benefits are confirmed, collect the evidence visuals needed for the set. Device layouts need simulator captures; photo-led layouts may use contextual artwork without a device. Do not require an artificial app-screenshot pairing for a photo-only panel, but require actual UI evidence for any panel that demonstrates app output.
 
 ### Step 1: Collect Simulator Screenshots
 
@@ -216,7 +227,11 @@ This is critical for resumability. If the user comes back in a new conversation,
 
 ## GENERATION
 
-Once benefits and screenshot pairings are confirmed, generate the final App Store screenshots with an editable Sketch template when Sketch MCP is available. Use the existing deterministic raster workflow only when the user requests it or Sketch MCP is unavailable.
+Once benefits and evidence-visual pairings are confirmed, plan the set before rendering. Read [the layout toolbelt and set planning guidance](references/layouts-and-state.md). Save an ordered storyboard: each panel's role, headline, evidence visual, chosen layout, and reason. Frame one establishes category and action; frame two delivers its result. Later frames add distinct benefits or verified proof.
+
+Define a shared visual system (fonts, palette, headline hierarchy, spacing, device treatment, and artwork style) and record intentional per-panel variations. Render a rough contact sheet of every panel at storefront size, using Sketch previews or a simple local montage. Check category/action/result comprehension, attention hierarchy, balance, rhythm, cohesion, and independent panel clarity. Refine and obtain approval for the set direction before polishing panels. A full-set contact sheet is also required at final review; the optional three-panel showcase is not a substitute. Reuse an approved storyboard on resume.
+
+Generate the final App Store screenshots with an editable Sketch template when Sketch MCP is available. Use the existing deterministic raster workflow only when the user requests it or Sketch MCP is unavailable.
 
 ### Select the rendering workflow
 
@@ -249,15 +264,15 @@ Sketch templates must contain separate iPhone and iPad masters and exact export 
 
 ### Screenshot Format Specification
 
-Each screenshot follows this exact high-converting ASO format. **Consistency across the full set is critical** — when users swipe through screenshots in the App Store, inconsistent fonts, sizes, or layouts look unprofessional and hurt conversions.
+Each screenshot follows the constitution and approved storyboard; the formats below are starting points. **Consistency across the full set is critical** — when users swipe through screenshots in the App Store, unrelated typography, device treatments, or artwork can fragment the visual identity. Intentional layout and scale variation is allowed.
 
-**Experiment evidence outranks the default template.** Before replacing a live screenshot style, inspect recent Product Page Optimization results and preserve conversion-positive elements in the next test. A winning mixed treatment does not prove which individual element caused the lift, so carry likely winners forward as testable components rather than redesigning the whole set at once.
+**Experiment evidence informs choices within the constitution and outranks layout defaults.** Before replacing a live screenshot style, inspect recent Product Page Optimization results and preserve conversion-positive elements in the next test. A winning mixed treatment does not prove which individual element caused the lift, so carry likely winners forward as testable components rather than redesigning the whole set at once.
 
 **Social proof (use when verified):**
 - Treat download milestones, editorial recognition, ratings, awards, or press mentions as conversion elements, not decoration.
 - Confirm that every claim is current and supportable before generation. Never round up beyond the verified milestone or imply an endorsement that did not occur.
 - Put the strongest proof in the first three screenshots. Prefer no more than two proof treatments in the set so product benefits remain primary.
-- Social-proof frames are exempt from the action-verb headline rule. A dedicated proof frame may use a verified rating, download milestone, editorial feature, award, or press claim.
+- Social-proof frames are exempt from the action-verb headline rule. A dedicated proof frame may use a verified rating, download milestone, editorial feature, award, or press claim after the opening action/result pair. Supporting proof in those first two frames must remain secondary.
 - Recreate the proven legacy treatment when available: a symmetrical pair of simple laurel branches framing the claim, high contrast, generous clear space, and no competing decorative elements.
 - A proof badge may instead sit in unused space on a benefit screenshot, but it must remain readable at thumbnail size and must not cover the app UI or headline.
 - Localize the descriptor naturally for each storefront while keeping numerals and the Apple name accurate. Re-check line breaks in every rendered locale.
@@ -266,31 +281,24 @@ Each screenshot follows this exact high-converting ASO format. **Consistency acr
 
 ### Explicit layout choice
 
-For the raster fallback, choose and name one layout before rendering:
+For Sketch, choose per-panel compositions from the layout toolbelt in `references/layouts-and-state.md`. For the raster fallback, choose and name one supported preset per panel before rendering:
 
 - `regular`: title → subtitle → device screenshot.
 - `social-proof-vstack`: title → subtitle → one or two supporting laurel wreaths → lowered device screenshot.
 
-Use `regular` by default. Use `social-proof-vstack` only when the social-proof decision is `include`. Preserve the main title and benefit subtitle as the dominant message. Load exact defaults and override rules from `references/layouts-and-state.md`.
+Use `regular` when it clearly communicates the panel's role. In raster commands, `--verb` is the primary title field and may contain recognizable category wording rather than a single verb; adjust saved text sizes to keep that wording dominant. Use `social-proof-vstack` only when the social-proof decision is `include`. Preserve the main title and benefit subtitle as the dominant message. Load exact defaults and override rules from `references/layouts-and-state.md`.
 
-**Typography (MUST be visually consistent across the set)**:
-- **Line 1 — Action verb**: The single action verb (e.g., "TRACK", "SEARCH", "BOOST"). This is the biggest, boldest text on the screenshot. Use the same visible top position and visual weight throughout each device set.
-- **Line 2 — Benefit descriptor**: The rest of the headline. Keep the hierarchy, visible line spacing, and alignment constant. Permit localized font sizes and line counts to vary when required to fit naturally.
-- **Font**: Use the user's approved font when supplied. Otherwise let `compose.py` choose a common system bold font. Use locale-appropriate fallback fonts for scripts the primary font cannot render, and record every resolved font path in the manifest.
-- **Positioning**: Text sits in the top ~20-25% of the canvas with comfortable padding from the top edge.
-- **Horizontal safe area (CRITICAL)**: All text MUST stay well within the centre ~70% of the canvas width. Leave generous horizontal margins on both sides — at least 15% padding from each edge. This is essential because the post-processing step crops the sides of the image to convert from 9:16 to Apple's narrower aspect ratio. Any text near the left or right edges WILL be cut off. Keep headlines short enough to fit comfortably within this safe zone. If a headline is too long, break it across more lines rather than extending to the edges.
-
-**Device frame**:
-- Use a device component appropriate to the target family: a modern iPhone mockup for iPhone exports and a real iPad composition for iPad exports.
-- On iPhone hardware that includes it, render the Dynamic Island as opaque solid-black physical device hardware, centered in the same size and position across the set. It must not inherit the app screenshot, display app branding/content, or be styled as an app UI capsule.
-- The device displays the paired simulator screenshot
-- The device is **positioned high on the canvas** — it overlaps or sits just below the headline text area, NOT pushed down to the bottom
-- The bottom of the device **bleeds off the bottom edge** of the canvas — the phone is intentionally cropped, not fully visible. This creates a dynamic, modern feel.
-- The device is centered horizontally
+**Typography and device composition**:
+- Use the user's approved font or a suitable system font, with locale-appropriate fallbacks. Save resolved fonts.
+- Give recognizable category wording, the benefit headline, and the evidence visual priority. Do not require a standalone action verb, all capitals, or the same headline size on every panel.
+- Choose copy position, device placement, and scale from the approved layout. Keep essential text inside its export slice with comfortable margins. The raster enhancement workflow also needs crop-safe margins when converting a generated aspect ratio.
+- Use real device-family components and paired captures. Never stretch iPhone captures into iPad compositions.
+- Render the Dynamic Island, where present, as opaque black physical hardware with consistent geometry for that device component.
+- Devices may be centered, offset, cropped, or absent according to the layout. Do not obscure the UI evidence needed to understand the action or result.
 
 ### Localization and final QA
 
-For localized sets, read [`references/localization-and-qa.md`](references/localization-and-qa.md) completely before rendering. Lock the visible title top across locales, preserve constant visible line gaps, inspect RTL and CJK output separately, and check every final image for overlaps, clipping, incorrect shaping, inconsistent backgrounds, and missing device hardware. It is acceptable to move the device down to make room for localized copy; record the override in the manifest.
+For localized sets, read [`references/localization-and-qa.md`](references/localization-and-qa.md) completely before rendering. Preserve each panel's approved title anchor across locales, preserve its visible line gaps, inspect RTL and CJK output separately, and check every final image for overlaps, clipping, incorrect shaping, inconsistent backgrounds, and missing device hardware. It is acceptable to move the device down to make room for localized copy; record the override in the manifest.
 
 **Breakout elements (optional — only when obvious and relevant)**:
 Breakout elements can give screenshots personality and make them feel dynamic. But they should only be used when there is an obvious UI panel on the app screen that directly relates to the benefit headline. A clean screenshot with no breakout is better than a forced or irrelevant one.
@@ -300,11 +308,11 @@ Breakout elements can give screenshots personality and make them feel dynamic. B
 
 **What to avoid**: Don't add decorative elements just because you can. No random icons, no excessive particles/sparkles, no elements unrelated to the benefit. The screenshot should feel polished and intentional, not busy.
 
-**Background (MUST be consistent across ALL screenshots in the set)**:
-- Reuse the exact saved background specification on every screenshot: solid colour, explicit vertical gradient, or approved background image.
-- For a Sketch panorama, use one background layer across the full master composition and export adjacent slices from it. Never recreate the background separately inside each slice.
-- Do not approximate an approved background by eye or introduce unrecorded glows, gradients, radial patterns, or light effects.
-- If accent shapes are used, use the same style of accent on every screenshot so the set looks like a cohesive series when viewed side-by-side
+**Background and set cohesion**:
+- Use the approved palette and artwork style throughout the set; backgrounds may alternate between brand colours, quiet neutrals, photography, or contextual imagery when the storyboard gives a reason.
+- Save exact per-panel backgrounds and foreground fades. Reuse them on iteration; do not invent unrecorded effects.
+- For a Sketch panorama, use a continuous background group with panel treatments in master coordinates. Cross-boundary artwork must align at export seams.
+- Repeat typography, spacing relationships, device styling, and accent treatments. Do not force identical layouts or decorative elements onto every panel.
 
 ### Raster fallback generation — scaffold then imagegen enhance
 
@@ -312,7 +320,7 @@ Generation uses a two-stage approach for consistency:
 1. **Stage 1 (Scaffold)**: compose.py creates a deterministic local image with the correct text, device frame, and screenshot. This guarantees consistent layout across all screenshots.
 2. **Stage 2 (Enhance)**: The scaffold is edited with the built-in `image_gen` tool, following the `imagegen` skill, to add breakout elements, depth, and visual polish.
 
-**The first approved screenshot becomes the style template for the entire set.** All subsequent screenshots are enhanced using both their own scaffold (for layout) AND the first approved screenshot (for style). This ensures every screenshot in the set has the same device frame rendering, text treatment, background style, and overall visual quality — so when viewed side-by-side in the App Store, they look like a cohesive professional set.
+**The approved set direction governs the entire set; the first polished screenshot is a rendering reference.** All subsequent screenshots are enhanced using both their own scaffold (for layout) AND the first approved screenshot (for style). This ensures every screenshot in the set has the shared device frame rendering, typography, palette, artwork style, and overall visual quality, while preserving storyboard variations — so when viewed side-by-side in the App Store, they look like a cohesive professional set.
 
 For each benefit + screenshot pair, generate **3 enhanced versions** so the user can pick the best one. In built-in `image_gen` mode, issue one tool call per version. Do not use CLI batch mode unless the user explicitly chooses the imagegen CLI fallback.
 
@@ -428,13 +436,13 @@ You are creating the next screenshot in an App Store screenshot SET. It must loo
 
 TWO REFERENCE IMAGES:
 - FIRST image: The SCAFFOLD — use this as the definitive guide for layout: headline text wording/position, device frame placement, and the app screenshot on screen. This defines WHAT this screenshot shows.
-- SECOND image: The STYLE TEMPLATE — this is an already-approved screenshot from the same set. Match its visual style EXACTLY: same device frame rendering (this is critical — the phone must look identical), same text treatment, same background style/accents, same level of polish, same overall aesthetic. This defines HOW this screenshot should look. When in doubt, copy the style template more closely rather than less.
+- SECOND image: The STYLE TEMPLATE — this is an already-approved screenshot from the same set. Match its visual style EXACTLY: shared device styling, typography, palette, accents, and level of polish. Preserve the target panel's approved layout and background rather than copying the reference panel's composition. This defines HOW this screenshot should look. When references conflict, preserve the approved storyboard and target scaffold geometry.
 
 REQUIREMENTS:
-- CRITICAL: The device frame MUST match the style template EXACTLY — same photorealistic iPhone rendering, same size, same position, same shadows, same reflections, same edge treatment. Do NOT reinvent or reimagine the device frame. Reproduce it as closely as possible from the style template, only changing the screen contents.
+- CRITICAL: The device frame MUST match the style template EXACTLY — same photorealistic iPhone component, shadows, reflections, and edge treatment. Use the target scaffold's approved size and position. Do NOT reinvent or reimagine the device frame. Preserve the component appearance while following the target scaffold's geometry and screen contents.
 - Match the style template's text rendering style (same font treatment, same crispness, same visual weight)
-- Match the exact background specification in the style template manifest. Do not invent additional effects.
-- Use the scaffold's layout for positioning (text, device, screenshot placement)
+- Match the exact background specification in the target scaffold manifest. Do not invent additional effects.
+- Use the scaffold's layout for positioning (text, device, screenshot placement); it takes precedence over reference-panel geometry
 - Preserve the approved social-proof treatment from the scaffold or style template when specified.
 [SOCIAL PROOF — exact verified claim, localized wording, and laurel placement, or "None"]
 - OPTIONALLY add a PRIMARY breakout element — but ONLY if there is an obvious, visually compelling UI panel on the app screen that directly relates to the benefit headline. If nothing clearly reinforces the headline, skip the breakout entirely. When used, it MUST be an entire UI panel or grouped section (NOT individual small elements like a single button or icon). The panel must stay at the SAME vertical position and orientation as on screen — do NOT rotate or angle it. The panel must be SCALED UP significantly — rendered much larger than it appears on the phone screen — so that it extends dramatically beyond BOTH left and right edges of the device frame, clearly overlapping the phone bezel on both sides, expanding to nearly the full width of the screenshot canvas. Do NOT keep the panel at its original on-screen size. The panel itself must be enlarged. It should appear to float in front of the device at this larger scale — add a soft drop shadow beneath it to create depth. The panel MUST come from the app screenshot — same colours, same style, same content. Do NOT invent new elements.
@@ -444,7 +452,7 @@ REQUIREMENTS:
 - The breakout elements should match the style and energy level of those in the style template
 - Avoid watermarks, unapproved extra text, invented UI content, App Store UI chrome, or changing the app screenshot content. Preserve any approved, verified social-proof claim and laurel treatment specified in the scaffold or style template.
 
-The result must look like it was designed alongside the style template as part of the same professional set. When placed side-by-side in the App Store, they should be visually cohesive — same quality, same aesthetic, same design language, just different content.
+The result must look like it was designed alongside the style template as part of the same professional set. When placed side-by-side in the App Store, they should be visually cohesive — shared quality and design language, with the approved composition variations.
 
 No watermarks, no unapproved extra text, no app store UI chrome. Approved social-proof copy and laurels are intentional exceptions.
 ```
@@ -501,7 +509,7 @@ Input images: First visible image is the scaffold; second visible image is the s
 Here are three reference images, each with a distinct purpose:
 
 - FIRST image: The SCAFFOLD — use this as the definitive guide for layout: text position, device frame placement, and the app screenshot on screen. This defines WHERE everything goes.
-- SECOND image: The STYLE TEMPLATE — this is the first approved screenshot in the set. The device frame rendering, text treatment, and overall visual style MUST match this exactly. This defines HOW the screenshot should look to maintain consistency across the set.
+- SECOND image: The STYLE TEMPLATE — this is the first approved screenshot in the set. Use its shared device styling, typography, palette, and quality while preserving the target panel's approved layout and background. This defines HOW the screenshot should look to maintain consistency across the set.
 - THIRD image: The APPROVED DESIGN DIRECTION — this is the version the user liked best for this specific screenshot. Match its creative direction, breakout element approach, and secondary elements.
 
 Generate a new version that keeps the layout from the scaffold, the device frame and visual style from the style template, and the creative direction from the approved design, with these changes:
@@ -534,11 +542,11 @@ Do NOT ask the user to pick a background when an approved screenshot or saved ma
 2. **Study the simulator screenshots** — what are the dominant colours in the UI? What colour palette does the app use?
 3. **Consider the app's domain and audience** — a game can go bold and playful, a finance app needs confident and trustworthy colours
 
-**Pick one reproducible background specification that:**
+**Pick reproducible panel backgrounds within one shared visual system that:**
 - **Complements the screenshots** — makes the app screens pop, not clash. Prefer a bold solid colour unless an approved set establishes a gradient or background image.
 - **Stops the scroll** — vibrant, bold, saturated. Muted or pastel colours get lost in the App Store.
 - **Suits the app's personality** — match the energy of the app
-- **Avoids pitfalls** — no white/light grey (disappears against App Store), avoid colours too close to the app UI's dominant colour
+- **Maintains separation** — quiet white or light backgrounds are allowed when device edges and headline contrast remain clear; avoid losing the evidence visual against its background
 
 Present the exact specification with brief reasoning (for example a hex colour, two gradient stops, or background image path). The user can override it, but don't present it as a question.
 
@@ -573,6 +581,8 @@ Also tell the user exactly which App Store Connect display size slot each screen
 
 ### Save to Memory
 
+Save the approved storyboard, visual system, layout rationale, and full-set contact-sheet path alongside generation state.
+
 After each screenshot is generated (or after the full set is complete), save generation state to the Codex memory system. Create or update a memory file (e.g., `aso_generated_screenshots.md`) with:
 
 - **Brand colour**: name + hex code
@@ -581,7 +591,7 @@ After each screenshot is generated (or after the full set is complete), save gen
 - **Renderer**: `sketch-template` or `raster-fallback`
 - **Sketch state when applicable**: template path, base locale, template revision or modification date, iPhone and iPad slice sizes, localizable layer keys, translation source, and exported locale/device directories
 - **For each generated screenshot**:
-  - Benefit headline (ACTION VERB + DESCRIPTOR)
+  - Benefit headline (approved category/action/result wording)
   - Benefit subfolder path (e.g., `screenshots/01-track-card-prices/`)
   - Which version the user chose (v1, v2, or v3)
   - Final file path (e.g., `screenshots/final/01-track-card-prices.png`)
@@ -616,12 +626,12 @@ Show the showcase image to the user using `view_image`. This is a shareable prev
 
 - **Benefits over features**: "BOOST ENGAGEMENT" not "ADD SUBTITLES TO VIDEOS"
 - **Specific over generic**: "TRACK TRADING CARD PRICES" not "MANAGE YOUR STUFF"
-- **Action-oriented**: Every headline starts with a strong verb
+- **Constitution-led**: Category clarity, first-frame action, attention hierarchy, and second-frame result govern every layout choice
 - **User-centric**: Frame everything from the downloader's perspective
 - **Conversion-focused**: Every decision should answer "will this make someone tap Download?"
 - **Evidence-led**: Preserve elements associated with a winning Product Page Optimization treatment and isolate them in the next test
 - **Proof must be true**: Verify social claims before rendering; use laurels to frame proof, never to manufacture credibility
-- The first screenshot is the most important — it must communicate the single biggest reason to download
+- The first screenshot establishes category and demonstrates the main action; the second shows its result
 - Screenshots should tell a story when swiped through — each one reveals a new compelling reason
 - Always pair the most visually impactful simulator screenshot with the most important benefit
 - Never use an empty state, loading screen, or settings page as a screenshot — show the app at its best

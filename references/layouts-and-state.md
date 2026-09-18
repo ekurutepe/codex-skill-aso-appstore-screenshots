@@ -4,7 +4,46 @@ Read this file before selecting a screenshot layout, rendering a scaffold, or re
 
 ## Layout selection
 
-Use one of these named layouts. Do not invent a third layout until the user approves it and it is added here.
+Choose the layout that best satisfies the constitution and the panel's communication role. Repetition is allowed; variety must improve comprehension or visual rhythm.
+
+## Set planning and review
+
+Before generation, save the ordered storyboard and shared visual system. For each panel record its role (category/action, result, additional benefit, or proof), headline, evidence visual, layout, reason, exact background, and artwork layers. Preserve a conversion-positive treatment as a testable component where it does not conflict with the constitution; disclose conflicts rather than silently replacing a winner.
+
+Review a rough full-set contact sheet at storefront size before polishing, and the complete exported set before final approval:
+
+- Frame one makes the category and main action understandable; frame two shows what that action returns.
+- Each panel has a clear headline and evidence visual; badges and branding attract less attention.
+- Relevant UI is legible without reading every tiny label. Essential meaning survives when a panel is viewed alone.
+- Typography, palette, margins, device styling, and artwork form one identity. Vary density and background deliberately; avoid adjacent panels competing at maximum intensity.
+- Every later panel adds a distinct reason to download. Do not add decoration solely to avoid repetition.
+
+## Composition toolbelt (Sketch)
+
+These are supported design instructions implemented with native Sketch text, image, mask, shape, symbol, and shadow layers, not additional `compose.py` CLI presets. Use the Sketch workflow for these layouts; do not claim raster support or silently substitute a preset when Sketch is unavailable.
+
+| Layout | Choose when | Composition |
+|---|---|---|
+| `photo-hero` | Context or a person using the product explains the main action faster than UI alone | Large contextual photo or cutout plus recognizable category headline; device optional; proof secondary. Avoid generic mood photography. |
+| `device-first` | The screen is the strongest evidence, with copy clearer below or beside it | Prominent device placed high; headline below or alongside; add a foreground fade only where needed for copy contrast. |
+| `ui-result` | The returned result is too small in a full device | Enlarge an actual result card, crop, or grouped section as the hero; device optional or supporting. Keep original content intact. |
+| `device-breakout` | One UI section deserves emphasis while retaining screen context | Device plus an enlarged source UI panel and soft shadow. Keep its orientation and relation to the source clear. |
+| `proof-led` | Verified credibility adds value after the opening action/result pair | Clear verified claim with laurels or rating treatment; app imagery optional and supporting. |
+| `connected` | Adjacent panels clarify a relationship or progression | One master composition with artwork or devices crossing slice boundaries; each panel remains understandable alone. |
+
+Layer tools may be combined with these layouts:
+
+- **Foreground artwork:** use supplied or appropriately sourced imagery; isolate people/objects using a prepared transparent cutout or native mask. Record asset paths and front/behind-device ordering. Do not pretend Sketch itself performs automatic background removal.
+- **Foreground fades:** use native transparent-to-colour gradient shapes above artwork/device and below copy. Preserve the UI that proves the benefit.
+- **Headline emphasis:** native text colour ranges may emphasize category or benefit words using the shared palette; maintain a clear hierarchy.
+- **Feature badges:** reuse a small editable text/icon component when it clarifies the feature. Keep it secondary; avoid unverified endorsement cues.
+- **Panel backgrounds:** allow approved palette variants, contextual map imagery, or photography within the shared visual system. Record every treatment.
+
+Name artwork and badge slots semantically when they vary by locale, just as text and app screenshot slots do. Use localized assets where required.
+
+## Raster presets
+
+`compose.py` implements only the following two presets. Their geometry is a renderer starting point, not a requirement for all Sketch compositions. It always renders a device and white, centered text. `--breakout` stores metadata only; imagegen supplies the current raster breakout treatment. Use `--text-transform none` for sentence-case copy. If the presets cannot communicate the opening category/action/result clearly, disclose the limitation and select a capable workflow rather than violating the constitution.
 
 ### `regular`
 
@@ -71,7 +110,7 @@ Default parameters for 1284×2778:
 
 Treat these as starting values. When the user approves an adjustment, save the resolved values in that screenshot's manifest and reuse those values for later iterations of the same frame.
 
-`desc_line_gap` and `proof_line_gap` mean visible pixel clearance between rendered glyph bounds, not baseline distance. Keep these values constant within a device set. Keep `text_top` fixed across locales; move the device down when localized text needs more vertical room.
+`desc_line_gap` and `proof_line_gap` mean visible pixel clearance between rendered glyph bounds, not baseline distance. Keep these values stable for the same approved panel across locales. Keep that panel's `text_top` fixed across locales; move the device down when localized text needs more vertical room.
 
 ## Backgrounds
 
@@ -110,7 +149,7 @@ Only render a claim when its exact wording and evidence are supportable. For eac
 
 If the stored evidence and prior user decision make inclusion clear, follow them. Otherwise ask one concise question before generation that resolves all missing facts: whether to include laurels and the exact verified claims/wording to use. Save the answer, including an explicit decision to omit social proof. Do not ask again unless the evidence, wording, locale, or user preference changes.
 
-Prefer at most two wreaths on one screenshot. Keep them supporting the benefit message. Never convert an unverified number into a rounded-up milestone.
+Prefer at most two wreaths on one screenshot. Keep them supporting the benefit message in action/result frames; a dedicated proof-led panel belongs after those frames. Never convert an unverified number into a rounded-up milestone.
 
 ## Per-screenshot manifest
 
