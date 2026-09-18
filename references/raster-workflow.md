@@ -235,4 +235,3 @@ screenshots/
 The `final/` folder is the only one the user needs to care about — it contains one approved, App Store-ready screenshot per benefit, numbered in order. The benefit subfolders contain all working versions and can be ignored or deleted after the set is complete.
 
 Also tell the user exactly which App Store Connect display size slot each screenshot fits into.
-
