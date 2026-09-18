@@ -36,7 +36,9 @@ Alternatively, ask Codex to install the skill from GitHub with `$skill-installer
 ### 2. Install Python Dependencies
 
 ```bash
-pip install Pillow
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python check.py
 ```
 
 ### 3. Optional brand font
@@ -55,7 +57,7 @@ From within your app's project directory, run:
 Use $aso-appstore-screenshots to plan and generate screenshots for this app.
 ```
 
-The skill will guide you through each phase interactively. Progress is saved to Codex memory, so you can resume across conversations.
+The skill will guide you through each phase interactively. Progress is saved in the app project's `screenshots/aso-state.json`, so another session can resume without a memory integration. Optional memory may point to this file. Saved inputs and exports are validated before resuming.
 
 ## How It Works
 
@@ -117,13 +119,26 @@ screenshots/
   showcase.png              ← optional preview of up to 3 screenshots
 ```
 
-The raster `final/` folder contains approved screenshots and their manifests. Sketch exports use locale/device directories and an editable template as described in the [Sketch workflow](references/sketch-template-workflow.md). Verify dimensions against the intended App Store slot before upload. Save rough and final contact sheets covering every panel; the optional three-panel showcase does not replace full-set review.
+Use `finalize.py` to create exact-size raster images and sibling manifests together; scaffold geometry remains explicitly labeled as reference geometry until actual output is measured. The raster `final/` folder contains approved screenshots and their manifests. Sketch exports use locale/device directories and an editable template as described in the [Sketch workflow](references/sketch-template-workflow.md). Verify dimensions against the intended App Store slot before upload. Save rough and final contact sheets covering every panel; the optional three-panel showcase does not replace full-set review.
+
+## Checks and evaluations
+
+Run `python check.py` with the declared dependencies installed. It validates skill/interface metadata, local documentation links, asset readability, and renderer/finalization/state regression tests. GitHub Actions runs the same command on pushes and pull requests.
+
+For an app project, run `python check.py --state /path/to/screenshots/aso-state.json` to check the storyboard sequence, saved artifact paths, export dimensions/mode, manifest consistency, and recorded review evidence. Passing checks do not prove visual appeal or truthful claims.
+
+Use the [constitution evaluation cases](evals/constitution.md) when changing decision guidance. Review agent storyboards separately from visual contact sheets; do not treat a metadata check as behavioral evaluation.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `SKILL.md` | The skill prompt — defines the multi-phase workflow |
+| `AGENTS.md` | Short repository map and verification commands |
+| `check.py` | Repository and project-state checks |
+| `finalize.py` | Raster image/manifest processing with crop and scale provenance |
+| `requirements.txt` | Reproducible Python dependencies |
+| `references/raster-workflow.md` | Raster rendering prompts and finalization workflow |
 | `compose.py` | Deterministic scaffold generator (Pillow-based) |
 | `generate_frame.py` | Generates the device frame template |
 | `showcase.py` | Generates the side-by-side showcase image |

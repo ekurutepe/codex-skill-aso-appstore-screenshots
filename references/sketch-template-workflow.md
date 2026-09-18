@@ -29,7 +29,7 @@ Before creating a template, inspect available libraries and design assets. Reuse
 
 ## App Store targets
 
-Verify Apple's current screenshot specification before creating or exporting slices. Select one accepted portrait or landscape size for each required display class and record it in memory. At the time this workflow was written, useful portrait targets included:
+Verify Apple's current screenshot specification before creating or exporting slices. Select one accepted portrait or landscape size for each required display class and record it in project state. At the time this workflow was written, useful portrait targets included:
 
 - iPhone 6.9-inch: 1320 x 2868
 - iPad 13-inch: 2064 x 2752
@@ -113,7 +113,7 @@ Do not build the whole document in one opaque `run_code` call. Keep creation inc
 
 ## Localization input
 
-Accept localization data as a user-provided mapping, localization file, or confirmed memory state. Normalize it to semantic keys before touching Sketch. Example:
+Accept localization data as a user-provided mapping, localization file, or confirmed project state. Normalize it to semantic keys before touching Sketch. Example:
 
 ```json
 {
@@ -181,7 +181,7 @@ For every locale and device family:
 
 Do not claim completion when a locale or device family is missing required strings, screenshots, exports, or visual verification.
 
-## Memory state
+## Project state
 
 Save incrementally:
 
@@ -194,4 +194,4 @@ Save incrementally:
 - Export directories and per-locale/device status
 - Missing inputs, QA failures, and intentionally retained localized Sketch copies
 
-The template is the design source of truth. Memory records workflow state; it must not attempt to duplicate every Sketch layer property.
+The template is the design source of truth. `screenshots/aso-state.json` records workflow state; it must not attempt to duplicate every Sketch layer property.

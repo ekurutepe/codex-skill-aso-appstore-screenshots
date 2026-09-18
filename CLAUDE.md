@@ -10,7 +10,7 @@ A Codex skill (`aso-appstore-screenshots`) that guides users through creating hi
 
 The core files are:
 
-- **SKILL.md** — The skill prompt. Defines a multi-phase workflow: Benefit Discovery → Evidence-Visual Pairing → Storyboard and Set Direction → Generation → Full-Set Review. The four-principle constitution governs category clarity, first-frame action, attention hierarchy, and second-frame result. Uses Codex memory to persist state across conversations so users can resume mid-workflow. Sketch MCP is the primary editable generation path; compose.py remains the raster fallback.
+- **SKILL.md** — The skill prompt. Defines a multi-phase workflow: Benefit Discovery → Evidence-Visual Pairing → Storyboard and Set Direction → Generation → Full-Set Review. The four-principle constitution governs category clarity, first-frame action, attention hierarchy, and second-frame result. Uses the app project's `screenshots/aso-state.json` to persist state across conversations so users can resume mid-workflow. Sketch MCP is the primary editable generation path; compose.py remains the raster fallback.
 - **references/sketch-template-workflow.md** — Defines the single-template Sketch workflow, separate iPhone and iPad panorama masters, temporary localization copies, stable replacement keys, slice export, and QA.
 - **compose.py** — Deterministically renders the `regular` and `social-proof-vstack` layouts and writes a sibling `.aso.json` manifest with resolved parameters, background, source paths, and social-proof configuration.
 - **references/layouts-and-state.md** — Defines the Sketch composition toolbelt, layout selection criteria, storyboard and contact-sheet review, raster defaults, background forms, social-proof decisions, evidence memory, and the per-screenshot manifest contract.
@@ -19,6 +19,10 @@ The core files are:
 - **showcase.py** — Generates a showcase image showing up to 3 final screenshots side-by-side with an optional GitHub link at the bottom. Used as the final step after all screenshots are approved.
 - **assets/device_frame.png** — Pre-rendered iPhone device frame template used by compose.py. Using a template instead of drawing the frame at compose time ensures pixel-perfect consistency across all generated screenshots.
 - **assets/laurel.png** — Approved single-branch laurel shape mirrored by compose.py around verified social-proof claims.
+
+## Verification
+
+Install `requirements.txt`, then run `python check.py`. CI runs the same command. Use `check.py --state` for saved app projects. See `evals/constitution.md` for decision-policy evaluations; mechanical checks cannot establish visual appeal.
 
 ## Running compose.py
 
@@ -45,6 +49,6 @@ python3 compose.py \
 - **Text auto-sizes and wraps** — supports whitespace-delimited languages and character wrapping for CJK copy.
 - **Fonts are portable** — a common system bold font is selected automatically; brand and locale fonts can be supplied explicitly.
 - **The raster workflow generates 3 versions** for each benefit so the user can pick the best one.
-- **The crop/resize step in SKILL.md is mandatory** after every `image_gen` call unless the output already verifies at exact App Store Connect dimensions.
-- **Memory is central to the workflow** — benefits, screenshot assessments, pairings, brand colour, and generation state are all persisted so users can resume across conversations.
+- **Raster finalization** — `finalize.py` creates exact-size opaque images and sibling manifests, retaining intended scaffold geometry as reference rather than claiming it describes generated pixels. See `references/raster-workflow.md`.
+- **Project-local state** — benefits, captures, pairings, styling, storyboard, approvals, and exports live in `screenshots/aso-state.json`. Optional memory is a pointer, not the canonical record. Validate referenced artifacts before resuming.
 - **Each raster image has a manifest** — preserve and update the sibling `.aso.json` instead of re-estimating layout or background values during iterations.

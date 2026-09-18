@@ -16,15 +16,17 @@ These four principles govern the storyboard, layout selection, generation, and r
 
 Choose layouts to satisfy these principles, not to fill a quota of different designs. Review the set as a whole before polishing individual panels.
 
-This is a multi-phase process. Follow each phase in order — but ALWAYS check memory first.
+This is a multi-phase process. Follow each phase in order — but ALWAYS check project state first.
 
 ---
 
 ## RECALL (Always Do This First)
 
-Before doing ANY codebase analysis, check the Codex memory system for all previously saved state for this app. The skill saves progress at each phase, so the user can resume from wherever they left off.
+Read [the project-state contract](references/layouts-and-state.md#project-state). Start with the app project's `screenshots/aso-state.json`; it is the canonical record. Optional Codex memory may point to it but is not required. If only legacy memory exists, migrate confirmed facts into the project file. Validate saved artifact paths with `python "$SKILL_DIR/check.py" --state screenshots/aso-state.json` before resuming. Missing assets invalidate the affected pairing/export, not unrelated approved decisions.
 
-**Check memory for each of these (in order):**
+Before doing ANY codebase analysis, read saved project state for this app. The skill saves project state at each phase, so the user can resume from wherever they left off.
+
+**Check project state for each of these (in order):**
 
 1. **Benefits** — confirmed benefit headlines + target audience + app context
 2. **Screenshot analysis** — simulator screenshot file paths, ratings (Great/Usable/Retake), descriptions of what each shows, and any assessment notes
@@ -55,7 +57,7 @@ Ready to continue generating screenshot 3, or would you like to change anything?
 - Jump to any specific phase ("I want to redo my benefits", "let me swap a screenshot", "regenerate screenshot 2")
 - Update a single thing without redoing everything ("change the headline for screenshot 1", "use a different brand colour")
 
-**If NO state is found in memory at all:**
+**If NO state is found in project state at all:**
 → Proceed to Benefit Discovery.
 
 ---
@@ -64,7 +66,7 @@ Ready to continue generating screenshot 3, or would you like to change anything?
 
 This phase sets the foundation for everything. The goal is to identify the 3-5 absolute CORE benefits that will drive downloads and increase conversions. Do not rush this.
 
-**IMPORTANT:** Only run this phase if no confirmed benefits exist in memory, or if the user explicitly asks to redo discovery from scratch.
+**IMPORTANT:** Only run this phase if no confirmed benefits exist in project state, or if the user explicitly asks to redo discovery from scratch.
 
 ### Step 1: Analyze the Codebase
 
@@ -124,9 +126,9 @@ DO NOT proceed until the user explicitly confirms the benefits. This is an itera
 - Explain your reasoning — why a particular verb or phrasing converts better
 - The user has final say, but push back (politely) if they're choosing something generic over something specific
 
-### Step 5: Save to Memory
+### Step 5: Save Project State
 
-Once the user confirms the final benefits, save them to the Codex memory system. Create or update a memory file (e.g., `aso_benefits.md`) with:
+Once the user confirms the final benefits, save them in `screenshots/aso-state.json` under `benefits` and `app`, with:
 - The app name and bundle ID
 - The confirmed benefits list (in order), each with the full headline (category, action, or result wording as appropriate)
 - The target audience
@@ -213,15 +215,15 @@ If no suitable screenshot exists for a benefit (all candidates were rated Retake
 
 Let the user review and swap pairings before proceeding. Do NOT move to generation until pairings are confirmed. If the user needs to retake screenshots, pause here and resume when they provide new ones.
 
-### Step 6: Save to Memory
+### Step 6: Save Project State
 
-Once pairings are confirmed, save the full screenshot analysis and pairings to the Codex memory system. Create or update a memory file (e.g., `aso_screenshot_pairings.md`) with:
+Once pairings are confirmed, save the full screenshot analysis and pairings to the project state file. Update `screenshots/aso-state.json` under `screenshot_analysis` and `pairings`, with:
 
 - **Every simulator screenshot provided** — file path, what it shows, rating (Great/Usable/Retake), and assessment notes
 - **The confirmed pairings** — which benefit maps to which screenshot file, and why
 - **Retake notes** — any screenshots that were rejected and why, so the user has context if they come back to fix them
 
-This is critical for resumability. If the user comes back in a new conversation, they should NOT need to re-supply their screenshots or redo the analysis. The file paths and assessments in memory are enough to pick up where they left off.
+This is critical for resumability. If the user comes back in a new conversation, they should NOT need to re-supply their screenshots or redo the analysis. The file paths and assessments in project state are enough to pick up where they left off.
 
 ---
 
@@ -238,7 +240,7 @@ Generate the final App Store screenshots with an editable Sketch template when S
 - **Sketch template (default when available):** Create or reuse one `.sketch` template containing the approved base localization and separate iPhone and iPad designs. The template is the editable source of truth and Sketch exports the final PNGs. Render other locales from temporary copies by replacing explicitly named text and image slots. Read [`references/sketch-template-workflow.md`](references/sketch-template-workflow.md) completely and follow it. Also read [`references/localization-and-qa.md`](references/localization-and-qa.md) before rendering any locale. After selecting this path, skip the raster fallback process below.
 - **Raster fallback:** Use `compose.py` and optional imagegen enhancement when Sketch MCP is unavailable or the user explicitly prefers flattened output. Read [`references/layouts-and-state.md`](references/layouts-and-state.md) completely and follow the existing process below.
 
-Do not silently switch workflows after generation begins. Record the selected renderer in memory and explain any fallback to the user.
+Do not silently switch workflows after generation begins. Record the selected renderer in project state and explain any fallback to the user.
 
 The messaging, evidence, background, device-family, and QA principles in this file apply to both workflows.
 
@@ -276,7 +278,7 @@ Each screenshot follows the constitution and approved storyboard; the formats be
 - Recreate the proven legacy treatment when available: a symmetrical pair of simple laurel branches framing the claim, high contrast, generous clear space, and no competing decorative elements.
 - A proof badge may instead sit in unused space on a benefit screenshot, but it must remain readable at thumbnail size and must not cover the app UI or headline.
 - Localize the descriptor naturally for each storefront while keeping numerals and the Apple name accurate. Re-check line breaks in every rendered locale.
-- Save the exact approved claim, source, locale wording, screenshot position, and last verification date to memory.
+- Save the exact approved claim, source, locale wording, screenshot position, and last verification date to project state.
 - Save the user's explicit include/omit decision. If evidence or preference is insufficient to decide, ask one concise question covering whether to use laurels and the exact verified claims. Remember the answer and do not ask again unless the evidence, wording, locale, or preference changes.
 
 ### Explicit layout choice
@@ -314,225 +316,9 @@ Breakout elements can give screenshots personality and make them feel dynamic. B
 - For a Sketch panorama, use a continuous background group with panel treatments in master coordinates. Cross-boundary artwork must align at export seams.
 - Repeat typography, spacing relationships, device styling, and accent treatments. Do not force identical layouts or decorative elements onto every panel.
 
-### Raster fallback generation — scaffold then imagegen enhance
+### Raster fallback generation
 
-Generation uses a two-stage approach for consistency:
-1. **Stage 1 (Scaffold)**: compose.py creates a deterministic local image with the correct text, device frame, and screenshot. This guarantees consistent layout across all screenshots.
-2. **Stage 2 (Enhance)**: The scaffold is edited with the built-in `image_gen` tool, following the `imagegen` skill, to add breakout elements, depth, and visual polish.
-
-**The approved set direction governs the entire set; the first polished screenshot is a rendering reference.** All subsequent screenshots are enhanced using both their own scaffold (for layout) AND the first approved screenshot (for style). This ensures every screenshot in the set has the shared device frame rendering, typography, palette, artwork style, and overall visual quality, while preserving storyboard variations — so when viewed side-by-side in the App Store, they look like a cohesive professional set.
-
-For each benefit + screenshot pair, generate **3 enhanced versions** so the user can pick the best one. In built-in `image_gen` mode, issue one tool call per version. Do not use CLI batch mode unless the user explicitly chooses the imagegen CLI fallback.
-
-**Step 0: Save reusable style state**
-
-Before generating any scaffolds, save the exact background specification, selected layout, any parameter overrides, and the social-proof evidence plus include/omit decision. Reuse an existing screenshot manifest when iterating instead of estimating values again.
-
-**Step 1: Create the scaffold with compose.py**
-
-The compose.py script lives in the skill directory. Run it to create the deterministic base screenshot.
-
-Before running the command, resolve `SKILL_DIR` to the absolute path of the installed `aso-appstore-screenshots` skill directory, i.e. the directory that contains this `SKILL.md` and `compose.py`.
-
-**IMPORTANT — Batch all 3 scaffolds into a single Bash call** to minimize permission prompts. Chain the commands with `&&` so the user only needs to approve once:
-
-```bash
-SKILL_DIR="[absolute path to this skill directory]" && \
-mkdir -p screenshots/01-[benefit-slug] screenshots/02-[benefit-slug] screenshots/03-[benefit-slug] && \
-python3 "$SKILL_DIR/compose.py" \
-  --layout regular \
-  --bg "[HEX CODE]" --verb "[VERB 1]" --desc "[DESC 1]" \
-  --screenshot [path/to/screenshot-1.png] \
-  --output screenshots/01-[benefit-slug]/scaffold.png && \
-python3 "$SKILL_DIR/compose.py" \
-  --layout regular \
-  --bg "[HEX CODE]" --verb "[VERB 2]" --desc "[DESC 2]" \
-  --screenshot [path/to/screenshot-2.png] \
-  --output screenshots/02-[benefit-slug]/scaffold.png && \
-python3 "$SKILL_DIR/compose.py" \
-  --layout regular \
-  --bg "[HEX CODE]" --verb "[VERB 3]" --desc "[DESC 3]" \
-  --screenshot [path/to/screenshot-3.png] \
-  --output screenshots/03-[benefit-slug]/scaffold.png
-```
-
-This outputs pixel-perfect 1284×2778 PNGs with:
-- Bold white headline text (verb auto-sized to fit canvas width)
-- iPhone device frame (from pre-rendered template)
-- Simulator screenshot composited inside the frame
-- The selected reproducible background specification
-- A sibling `.aso.json` manifest containing the named layout, all resolved parameters, exact background, source paths, typography, device placement, and social-proof configuration
-
-For a verified proof frame, use `--layout social-proof-vstack`, repeat `--proof` once or twice, and pass any approved parameter overrides. See `references/layouts-and-state.md` for the exact command and claim schema.
-
-The scaffolds are internal intermediates — do NOT show them to the user or ask for confirmation. Proceed immediately to Step 2 (imagegen enhancement).
-
-**Step 2: Enhance with imagegen (3 versions)**
-
-Use the built-in `image_gen` tool from the `imagegen` skill. For each version:
-
-- If the edit target is a local scaffold file, first inspect it with `view_image` so it is visible in the conversation context.
-- For subsequent screenshots, also inspect the first approved screenshot with `view_image` so it is visible as the style template.
-- Call `image_gen` with the appropriate prompt template below.
-- The built-in tool saves generated images under `$CODEX_HOME/generated_images/...` by default. Move or copy each generated file into the project immediately after generation:
-  - `./screenshots/01-[benefit-slug]/v1.png`
-  - `./screenshots/01-[benefit-slug]/v2.png`
-  - `./screenshots/01-[benefit-slug]/v3.png`
-- Never leave a project-bound generated screenshot only under `$CODEX_HOME/generated_images/...`.
-- Copy the scaffold manifest beside each generated variant and add the style-template path plus variant identifier. The image and manifest always travel together.
-- If the generated output already has exact target dimensions, keep it as-is. Otherwise crop/resize it in Step 3 before review.
-
-#### First screenshot (no approved template yet)
-
-Use only the scaffold as input:
-- Inspect `screenshots/01-[benefit-slug]/scaffold.png` with `view_image` before calling `image_gen`.
-
-**First screenshot prompt template:**
-
-```
-Use case: ads-marketing
-Asset type: App Store screenshot
-Input image: The visible scaffold image is the edit target.
-Primary request: Transform the scaffold into a polished, professional App Store marketing screenshot that would make someone tap Download.
-
-KEEP EXACTLY AS-IS:
-- The headline text (wording, position, and approximate size)
-- The app screenshot shown on the phone screen
-- The background colour
-- The portrait composition and approximate layout
-- Any approved social-proof copy and laurel treatment described below
-
-[SOCIAL PROOF — exact verified claim, localized wording, and laurel placement, or "None"]
-
-ENHANCE AND POLISH:
-- Refine the device frame into a sleek modern iPhone mockup with accurate proportions, reflections, and subtle shadows. Keep the same position and size as the scaffold.
-- Refine the overall visual quality to look like a professional, high-budget App Store screenshot
-- OPTIONALLY add a PRIMARY breakout element — but ONLY if there is an obvious, visually compelling UI panel on the app screen that directly relates to the benefit headline. If nothing on screen clearly reinforces the headline, skip the breakout entirely — a clean screenshot with no breakout is better than a forced one. When you DO add a breakout, it MUST be an entire UI panel or grouped section (e.g., a complete card with its title and content, a full list section, a complete dialog/sheet) — never individual small elements like a single button, icon, or colour dot. IMPORTANT: The panel must stay at the SAME vertical position and orientation as where it appears on screen — do NOT rotate or angle it. The panel must be SCALED UP significantly — rendered much larger than it appears on the phone screen — so that it extends dramatically beyond BOTH left and right edges of the device frame, clearly overlapping the phone bezel on both sides, expanding to nearly the full width of the screenshot canvas. Do NOT keep the panel at its original on-screen size with just padding added around it. The panel itself must be enlarged. It should appear to float in front of the device at this larger scale — add a soft drop shadow beneath it to create depth and sell the hovering effect. The panel must look like it came from the app — same colours, same style, same content. Do NOT invent new elements.
-[PRIMARY BREAKOUT — if a relevant panel is obvious, describe the specific UI panel visible on screen and instruct it to extend beyond both edges of the device frame with a drop shadow, e.g., "The [panel name] card/row extends beyond both left and right edges of the device frame, overlapping the phone bezel on both sides, expanding to nearly the full screenshot width. It floats in front of the device with a soft drop shadow beneath it." If no panel clearly relates to the headline, write "No breakout — the app screen speaks for itself."]
-- Optionally add 1-2 secondary elements that reinforce the benefit and message of the screenshot — the kind of enhancements a professional graphic designer would add for impact. These are NOT from the app UI; they are creative additions that help clearly communicate what the screenshot is trying to portray to the user browsing the App Store. They should carry the message and support ASO conversion, but never at the cost of the overall design aesthetic. They must not compete with the primary breakout for attention.
-[SECONDARY ELEMENTS (optional) — describe 0-2 small supporting elements that tell the story, or "None needed"]
-- Preserve the exact background specification recorded in the scaffold manifest. Do not add unrecorded glows, gradients, radial patterns, or light effects.
-- Ensure the text is crisp, bold, and highly readable
-- Avoid watermarks, unapproved extra text, invented UI content, App Store UI chrome, or changing the app screenshot content. Preserve any approved, verified social-proof claim and laurel treatment specified in the scaffold or prompt.
-
-The final result should look like it was designed by a professional App Store screenshot agency — polished, high-converting, and visually striking. No watermarks, no unapproved extra text, no app store UI chrome. Approved social-proof copy and laurels are intentional exceptions.
-```
-
-#### Subsequent screenshots (after first is approved)
-
-Use **two images** as input:
-1. Inspect the **scaffold** for this benefit (`screenshots/0N-[benefit-slug]/scaffold.png`) with `view_image` — defines the layout
-2. Inspect the **first approved screenshot** (`screenshots/final/01-[first-benefit-slug].png`) with `view_image` — defines the style template
-
-**Subsequent screenshot prompt template:**
-
-```
-Use case: ads-marketing
-Asset type: App Store screenshot
-Input images: First visible image is the scaffold edit target; second visible image is the style template reference.
-Primary request: Create the next screenshot in an App Store screenshot set, matching the approved style while using the scaffold's exact content and layout.
-
-You are creating the next screenshot in an App Store screenshot SET. It must look like it belongs to the same series as the style reference.
-
-TWO REFERENCE IMAGES:
-- FIRST image: The SCAFFOLD — use this as the definitive guide for layout: headline text wording/position, device frame placement, and the app screenshot on screen. This defines WHAT this screenshot shows.
-- SECOND image: The STYLE TEMPLATE — this is an already-approved screenshot from the same set. Match its visual style EXACTLY: shared device styling, typography, palette, accents, and level of polish. Preserve the target panel's approved layout and background rather than copying the reference panel's composition. This defines HOW this screenshot should look. When references conflict, preserve the approved storyboard and target scaffold geometry.
-
-REQUIREMENTS:
-- CRITICAL: The device frame MUST match the style template EXACTLY — same photorealistic iPhone component, shadows, reflections, and edge treatment. Use the target scaffold's approved size and position. Do NOT reinvent or reimagine the device frame. Preserve the component appearance while following the target scaffold's geometry and screen contents.
-- Match the style template's text rendering style (same font treatment, same crispness, same visual weight)
-- Match the exact background specification in the target scaffold manifest. Do not invent additional effects.
-- Use the scaffold's layout for positioning (text, device, screenshot placement); it takes precedence over reference-panel geometry
-- Preserve the approved social-proof treatment from the scaffold or style template when specified.
-[SOCIAL PROOF — exact verified claim, localized wording, and laurel placement, or "None"]
-- OPTIONALLY add a PRIMARY breakout element — but ONLY if there is an obvious, visually compelling UI panel on the app screen that directly relates to the benefit headline. If nothing clearly reinforces the headline, skip the breakout entirely. When used, it MUST be an entire UI panel or grouped section (NOT individual small elements like a single button or icon). The panel must stay at the SAME vertical position and orientation as on screen — do NOT rotate or angle it. The panel must be SCALED UP significantly — rendered much larger than it appears on the phone screen — so that it extends dramatically beyond BOTH left and right edges of the device frame, clearly overlapping the phone bezel on both sides, expanding to nearly the full width of the screenshot canvas. Do NOT keep the panel at its original on-screen size. The panel itself must be enlarged. It should appear to float in front of the device at this larger scale — add a soft drop shadow beneath it to create depth. The panel MUST come from the app screenshot — same colours, same style, same content. Do NOT invent new elements.
-[PRIMARY BREAKOUT — if a relevant panel is obvious, describe the specific UI panel visible on screen to pop out with a drop shadow, extending beyond both device frame edges. Otherwise write "No breakout — the app screen speaks for itself."]
-- Optionally add 1-2 secondary elements that reinforce the benefit and message of the screenshot — the kind of enhancements a professional graphic designer would add for impact. These are NOT from the app UI; they are creative additions that help clearly communicate what the screenshot is trying to portray to the user browsing the App Store. They should carry the message and support ASO conversion, but never at the cost of the overall design aesthetic. They must not compete with the primary breakout for attention.
-[SECONDARY ELEMENTS (optional) — 0-2 small supporting elements that tell the story, or "None needed"]
-- The breakout elements should match the style and energy level of those in the style template
-- Avoid watermarks, unapproved extra text, invented UI content, App Store UI chrome, or changing the app screenshot content. Preserve any approved, verified social-proof claim and laurel treatment specified in the scaffold or style template.
-
-The result must look like it was designed alongside the style template as part of the same professional set. When placed side-by-side in the App Store, they should be visually cohesive — shared quality and design language, with the approved composition variations.
-
-No watermarks, no unapproved extra text, no app store UI chrome. Approved social-proof copy and laurels are intentional exceptions.
-```
-
-**IMPORTANT — Consistency enforcement**: The scaffold guarantees consistent layout. The style template guides consistent visual treatment. If imagegen changes the text, layout, app UI content, or deviates from the style template, regenerate with a stricter prompt.
-
-Before every iteration, read that screenshot's `.aso.json` first. Preserve the named layout, background, and resolved parameters unless the user explicitly requests a change; then update only those fields in the next manifest.
-
-**Step 3: IMMEDIATELY crop and resize ALL 3 versions to App Store dimensions**
-
-⚠️ **You MUST run this immediately after all 3 `image_gen` calls complete. Do NOT show the user any image before running this unless it already verifies at the exact App Store dimensions.**
-
-**CRITICAL — Use exactly ONE Bash tool call for all 3 crop/resize operations.** Do NOT make 3 separate Bash calls. Do NOT use parallel Bash calls. Use the single loop below so the user only sees one permission prompt:
-
-```bash
-TARGET_W=1284 && TARGET_H=2778 && \
-for INPUT in screenshots/01-[benefit-slug]/v1.png screenshots/01-[benefit-slug]/v2.png screenshots/01-[benefit-slug]/v3.png; do
-  OUTPUT="${INPUT%.png}-resized.png"
-  cp "$INPUT" "$OUTPUT"
-  W=$(sips -g pixelWidth "$OUTPUT" | tail -1 | awk '{print $2}')
-  H=$(sips -g pixelHeight "$OUTPUT" | tail -1 | awk '{print $2}')
-  CROP_W=$(python3 -c "print(round($H * $TARGET_W / $TARGET_H))")
-  OFFSET_X=$(python3 -c "print(round(($W - $CROP_W) / 2))")
-  sips --cropOffset 0 $OFFSET_X --cropToHeightWidth $H $CROP_W "$OUTPUT"
-  sips -z $TARGET_H $TARGET_W "$OUTPUT"
-  echo "--- $OUTPUT ---"
-  sips -g pixelWidth -g pixelHeight "$OUTPUT"
-done
-```
-
-The script crops to the correct aspect ratio (top-center aligned — sides trimmed equally, top edge preserved so the headline stays put) and resizes to exact pixel dimensions. The resized image is saved as a separate file with `-resized.png` appended.
-
-The bundled renderer targets `TARGET_W=1284 TARGET_H=2778`, an accepted iPhone 6.5-inch size. Apple also accepts other dimensions and updates its preferred display classes over time; verify the current official specification before changing these values.
-
-**Step 4: Review all 3 versions with the user**
-
-Present all 3 **resized** versions (the `-resized.png` files) to the user using `view_image`. Never show an unverified raw generated output — always show exact-dimension post-processed versions.
-
-Label them clearly as **Version 1**, **Version 2**, and **Version 3** and ask the user to pick their favourite or request changes.
-
-**Step 5: Iterate if needed**
-
-If the user wants changes, inspect **three images** with `view_image`, then call `image_gen`:
-1. The **scaffold** (`scaffold.png`) — anchors the layout (text position, device placement, screenshot)
-2. The **style template** (the first approved screenshot from `screenshots/final/01-*.png`) — defines the device frame rendering and overall visual style that must be consistent across the entire set
-3. The **approved design** (the version the user liked best for this specific screenshot) — anchors the creative direction and breakout element approach
-
-The prompt should reference all three:
-```
-Use case: ads-marketing
-Asset type: App Store screenshot iteration
-Input images: First visible image is the scaffold; second visible image is the set-wide style template; third visible image is the approved design direction.
-
-Here are three reference images, each with a distinct purpose:
-
-- FIRST image: The SCAFFOLD — use this as the definitive guide for layout: text position, device frame placement, and the app screenshot on screen. This defines WHERE everything goes.
-- SECOND image: The STYLE TEMPLATE — this is the first approved screenshot in the set. Use its shared device styling, typography, palette, and quality while preserving the target panel's approved layout and background. This defines HOW the screenshot should look to maintain consistency across the set.
-- THIRD image: The APPROVED DESIGN DIRECTION — this is the version the user liked best for this specific screenshot. Match its creative direction, breakout element approach, and secondary elements.
-
-Generate a new version that keeps the layout from the scaffold, the device frame and visual style from the style template, and the creative direction from the approved design, with these changes:
-[USER'S REQUESTED CHANGES]
-```
-
-This prevents drift (scaffold keeps layout locked), maintains set-wide consistency (style template keeps device frame and visual treatment identical), and preserves the creative direction the user already approved.
-
-When iterating, generate **3 versions** again with built-in `image_gen`. Then **immediately run the Step 3 crop/resize loop on all 3 in a single Bash call** before showing the user.
-
-Repeat until the user is happy.
-
-**Step 6: Copy approved version to `final/`**
-
-Once the user picks a winner, copy the resized version to `screenshots/final/`:
-
-```bash
-mkdir -p screenshots/final
-cp "screenshots/01-[benefit-slug]/v2-resized.png" "screenshots/final/01-[benefit-slug].png"
-cp "screenshots/01-[benefit-slug]/v2-resized.aso.json" "screenshots/final/01-[benefit-slug].aso.json"
-```
-
-This keeps `final/` clean — only approved, App Store-ready screenshots, one per benefit, numbered in order. Then move to the next benefit.
+Read [references/raster-workflow.md](references/raster-workflow.md) for scaffolds, imagegen prompts, and image/manifest finalization. Use `finalize.py` instead of ad hoc crop or copy commands. Native Sketch exports must not pass through this raster processor.
 
 ### Determine Background (Automatic)
 
@@ -550,40 +336,13 @@ Do NOT ask the user to pick a background when an approved screenshot or saved ma
 
 Present the exact specification with brief reasoning (for example a hex colour, two gradient stops, or background image path). The user can override it, but don't present it as a question.
 
-Save the background specification to memory and every screenshot manifest in Step 0.
+Save the background specification to project state and every screenshot manifest in Step 0.
 
-### Raster fallback output
-
-Save generated screenshots to a `screenshots/` directory in the project root, organised by benefit subfolder:
-
-```
-screenshots/
-  01-track-card-prices/       ← working versions for benefit 1
-    scaffold.png              ← deterministic compose.py output (text + frame + screenshot)
-    v1.png                    ← imagegen enhanced version 1
-    v1-resized.png            ← cropped/resized to App Store dimensions
-    v2.png
-    v2-resized.png
-    v3.png
-    v3-resized.png
-  02-search-any-card/         ← working versions for benefit 2
-    scaffold.png
-    v1.png
-    ...
-  final/                      ← approved screenshots, ready to upload
-    01-track-card-prices.png
-    02-search-any-card.png
-```
-
-The `final/` folder is the only one the user needs to care about — it contains one approved, App Store-ready screenshot per benefit, numbered in order. The benefit subfolders contain all working versions and can be ignored or deleted after the set is complete.
-
-Also tell the user exactly which App Store Connect display size slot each screenshot fits into.
-
-### Save to Memory
+### Save Project State
 
 Save the approved storyboard, visual system, layout rationale, and full-set contact-sheet path alongside generation state.
 
-After each screenshot is generated (or after the full set is complete), save generation state to the Codex memory system. Create or update a memory file (e.g., `aso_generated_screenshots.md`) with:
+After each screenshot is generated (or after the full set is complete), save generation state to the project state file. Update `screenshots/aso-state.json` with:
 
 - **Brand colour**: name + hex code
 - **Background specification**: solid colour, exact gradient stops, or background image path
@@ -603,7 +362,7 @@ After each screenshot is generated (or after the full set is complete), save gen
   - Status: generated / approved / needs-redo
   - Any user feedback or change requests noted
 
-Update this memory **incrementally** — after each screenshot is approved, add it. Don't wait until the end. This way if the conversation is interrupted mid-set, the user can resume from the last completed screenshot.
+Update this project state **incrementally** — after each screenshot is approved, add it. Don't wait until the end. This way if the conversation is interrupted mid-set, the user can resume from the last completed screenshot.
 
 ### Showcase Image
 

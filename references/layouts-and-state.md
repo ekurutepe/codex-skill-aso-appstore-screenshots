@@ -153,9 +153,9 @@ Prefer at most two wreaths on one screenshot. Keep them supporting the benefit m
 
 ## Per-screenshot manifest
 
-Every scaffold and approved final screenshot must have a sibling `<stem>.aso.json`. `compose.py` writes this automatically. Copy and update the manifest alongside imagegen variants and final files.
+Every raster scaffold and approved raster final screenshot must have a sibling `<stem>.aso.json`. `compose.py` writes this automatically. Copy and update the manifest alongside imagegen variants and final files.
 
-The manifest is the source of truth for future iterations and must contain:
+The manifest is the source of truth for future raster iterations. Scaffold manifests describe intended geometry; finalization retains that under `reference_geometry` and records real output dimensions plus processing transforms. Generated output geometry remains unverified until measured. Manifests must contain:
 
 - Canvas dimensions
 - Named layout and all resolved layout parameters
@@ -190,3 +190,36 @@ python3 compose.py --layout social-proof-vstack --bg-top "#D92700" --bg-bottom "
   --proof '{"kind":"award","top":"BEST OF","bottom":"2025","source":"verified award page","verified_on":"2026-01-15"}' \
   --screenshot source.png --output 01-track.png
 ```
+
+## Project state
+
+Store canonical progress in the app project's `screenshots/aso-state.json`, not this skill repository. Optional memory only points to that file. Paths in `files`, contact sheets, and exports are relative to the state file's directory; include all captures, artwork, fonts, template, manifests, and other artifacts needed to resume in `files` (absolute external paths are accepted but less portable).
+
+Minimum storyboard state:
+
+```json
+{
+  "schema_version": 1,
+  "status": "draft",
+  "renderer": "sketch-template",
+  "app": {"name": "Example", "bundle_id": "com.example.app"},
+  "visual_system": {"font": "approved brand font", "palette": ["#123456"], "device_treatment": "shared frame"},
+  "panels": [
+    {"role": "category-action", "headline": "Fish ID", "visual": "capture a fish", "layout": "photo-hero", "reason": "demonstrates identification action"},
+    {"role": "result", "headline": "Know your catch", "visual": "actual species result", "layout": "ui-result", "reason": "enlarges the returned identification"}
+  ],
+  "files": [],
+  "exports": [],
+  "reviews": {}
+}
+```
+
+Also save confirmed `benefits`, `screenshot_analysis`, `pairings`, `social_proof`, localized inputs/wording, template path and revision, and per-panel status/background overrides as they become available. Discovery may use `status: discovery` before a complete storyboard exists; do not render until a draft storyboard passes validation. An empty draft file list is only appropriate before collecting assets.
+
+Update state incrementally using a temporary sibling file and atomic replacement. Record explicit user approvals with evidence rather than inferring approval from elapsed time. Validate before resuming and before marking complete:
+
+```bash
+python3 "$SKILL_DIR/check.py" --state screenshots/aso-state.json
+```
+
+Put every locale/device set in its own directory, with one export per panel. Each export is `{"path": "final/en-US/iphone-6.9/01.png", "size": [1320, 2868]}`. `status: approved` requires exports and both `reviews.direction` and `reviews.final`, each containing `approved: true`, `contact_sheet` (all panels, in order), and specific `notes`. Raster manifests also require approved visual-review notes. Mechanical validation verifies sequence metadata and artifact integrity; actual category clarity, truthful proof, visual appeal, and completeness of a contact sheet require visual review. Do not claim that a passing state check proves these.

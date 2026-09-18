@@ -121,19 +121,22 @@ def make_background(args):
 
 
 def word_wrap(draw, text, font, max_width):
-    has_spaces = any(character.isspace() for character in text)
-    tokens = text.split() if has_spaces else list(text)
-    separator = " " if has_spaces else ""
-    lines, current = [], ""
-    for word in tokens:
-        candidate = f"{current}{separator if current else ''}{word}"
-        if draw.textlength(candidate, font=font) <= max_width:
-            current = candidate
-        else:
-            if current:
+    lines = []
+    for paragraph in text.split("\n"):
+        if not paragraph:
+            lines.append("")
+            continue
+        has_spaces = any(character.isspace() for character in paragraph)
+        tokens = paragraph.split() if has_spaces else list(paragraph)
+        separator = " " if has_spaces else ""
+        current = ""
+        for word in tokens:
+            candidate = f"{current}{separator if current else ''}{word}"
+            if current and draw.textlength(candidate, font=font) > max_width:
                 lines.append(current)
-            current = word
-    if current:
+                current = word
+            else:
+                current = candidate
         lines.append(current)
     return lines
 
@@ -142,7 +145,8 @@ def fit_font(font_path, text, max_width, size_max, size_min):
     draw = ImageDraw.Draw(Image.new("L", (1, 1)))
     for size in range(size_max, size_min - 1, -2):
         font = ImageFont.truetype(font_path, size)
-        if draw.textbbox((0, 0), text, font=font)[2] <= max_width:
+        if all(draw.textbbox((0, 0), line, font=font)[2] <= max_width
+               for line in text.split("\n")):
             return font
     return ImageFont.truetype(font_path, size_min)
 
@@ -151,9 +155,10 @@ def draw_centered_lines(draw, top, text, font, max_width, line_gap):
     lines = word_wrap(draw, text, font, max_width)
     y = top
     for index, line in enumerate(lines):
-        box = draw.textbbox((0, 0), line, font=font)
+        box = draw.textbbox((0, 0), line or "Ag", font=font, anchor="lt")
         height = box[3] - box[1]
-        draw.text((CANVAS_W // 2, y - box[1]), line, fill="white", font=font, anchor="mt")
+        draw.text(((CANVAS_W - (box[2] - box[0])) / 2 - box[0], y - box[1]),
+                  line, fill="white", font=font, anchor="lt")
         y += height
         if index < len(lines) - 1:
             y += line_gap
