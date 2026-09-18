@@ -4,12 +4,20 @@ A reusable Codex skill for planning, localizing, rendering, and iterating App St
 
 ## What It Does
 
-1. **Benefit Discovery** — Analyzes your app's codebase to identify the 3-5 core benefits that drive downloads
-2. **Screenshot Pairing** — Reviews your simulator screenshots, rates them, and pairs each with the best benefit
-3. **Layouts** — Renders regular benefit frames or benefit-first social-proof frames with verified laurel claims
-4. **Localization QA** — Preserves alignment and spacing while checking RTL, CJK, and long translations
-5. **Editable generation** — Creates one Sketch template with base-localized iPhone and iPad designs, then exports localized PNGs through Sketch MCP
-6. **Raster fallback** — Creates deterministic `compose.py` scaffolds with optional built-in `imagegen` enhancement when Sketch is unavailable
+The skill uses four governing principles:
+
+1. **Make the category obvious.** Put what the app does in the biggest type, using immediately recognizable words.
+2. **Show the action in the first frame.** Demonstrate the main use case before asking people to swipe.
+3. **Control what gets noticed first.** Give the headline and hero visual priority; keep badges, supporting copy, and branding secondary.
+4. **Use the second frame to deliver the result.** Show what the user gets back and enlarge the relevant UI.
+
+The workflow discovers benefits, pairs them with evidence visuals, and plans an ordered storyboard and shared visual system. A rough full-set contact sheet establishes the direction before individual panels are polished. Final review checks the complete exported set at storefront size, including localized copy and UI.
+
+### Layout toolbelt
+
+Sketch compositions include `photo-hero`, `device-first`, `ui-result`, `device-breakout`, `proof-led`, and `connected`. Choose each layout for the panel's communication role; variety is useful when it improves comprehension or visual rhythm. Native layers support foreground artwork and cutouts, fades, headline colour emphasis, secondary badges, and deliberate background variations within one visual identity.
+
+See [layout selection and set review](references/layouts-and-state.md) for decision criteria. These compositions use Sketch's native layers; they are not additional raster CLI presets. `compose.py` still implements only `regular` and `social-proof-vstack`, with white centered text and a device. Its `--breakout` option records metadata; imagegen supplies the raster breakout treatment.
 
 ## Installation
 
@@ -55,7 +63,7 @@ The skill will guide you through each phase interactively. Progress is saved to 
 
 When Sketch MCP is available, the skill creates one editable `.sketch` template containing the approved base localization and separate iPhone and iPad panorama masters. Other locales render from temporary copies by replacing stable text and simulator-screenshot slots; Sketch exports the final App Store PNG slices directly.
 
-The template remains the design source of truth. Localized pages do not accumulate in it unless a designer explicitly asks to retain one for hand-tuning.
+The approved storyboard governs composition. Shared typography, palette, spacing, device treatment, and artwork hold the set together while individual panels may vary. The template remains the design source of truth. Localized pages do not accumulate in it unless a designer explicitly asks to retain one for hand-tuning.
 
 ### Raster fallback
 
@@ -91,9 +99,9 @@ python3 compose.py \
 
 The bundled renderer outputs 1284×2778 RGB PNGs, an accepted iPhone 6.5-inch size. Verify [Apple's current screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications) before producing or uploading other display classes. Do not stretch the bundled iPhone frame into an iPad shape.
 
-### Output
+### Raster output
 
-Screenshots are saved to a `screenshots/` directory in your project:
+Raster screenshots are saved to a `screenshots/` directory in your project:
 
 ```
 screenshots/
@@ -106,10 +114,10 @@ screenshots/
     01-benefit-slug.png
     01-benefit-slug.aso.json
     02-benefit-slug.png
-  showcase.png              ← preview image with all screenshots
+  showcase.png              ← optional preview of up to 3 screenshots
 ```
 
-The `final/` folder contains approved screenshots and their manifests. Verify dimensions against the intended App Store slot before upload.
+The raster `final/` folder contains approved screenshots and their manifests. Sketch exports use locale/device directories and an editable template as described in the [Sketch workflow](references/sketch-template-workflow.md). Verify dimensions against the intended App Store slot before upload. Save rough and final contact sheets covering every panel; the optional three-panel showcase does not replace full-set review.
 
 ## Files
 
@@ -121,7 +129,7 @@ The `final/` folder contains approved screenshots and their manifests. Verify di
 | `showcase.py` | Generates the side-by-side showcase image |
 | `assets/device_frame.png` | Pre-rendered iPhone device frame template |
 | `assets/laurel.png` | Mirrored branch used for verified social proof |
-| `references/layouts-and-state.md` | Layout and manifest contract |
+| `references/layouts-and-state.md` | Sketch layout toolbelt, set planning/review, raster defaults, and manifest contract |
 | `references/localization-and-qa.md` | Storefront localization and visual QA checklist |
 | `references/sketch-template-workflow.md` | Editable Sketch template, localization, panorama, and slice-export workflow |
 
